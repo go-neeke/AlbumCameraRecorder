@@ -39,7 +39,7 @@ public class ClickOrLongButton extends View {
     /**
      * 满进度
      */
-    private static final float FULL_PROGRESS = 1F;
+    private static final float FULL_PROGRESS = 6F;
     /**
      * 90度
      */
@@ -197,20 +197,6 @@ public class ClickOrLongButton extends View {
                 Log.d(TAG, "percentInDegree:" + percentInDegree);
 
                 if (percent <= FULL_PROGRESS) {
-                    if (percent <= PROGRESS_LIM_TO_FINISH_STARTING_ANIM) {
-                        float calPercent = percent / PROGRESS_LIM_TO_FINISH_STARTING_ANIM;
-                        float outIncDis = outBlackCircleRadiusInc * calPercent;
-                        float curOutCircleWidth = mOutCircleWidth + mOuterCircleWidthInc * calPercent;
-                        processBarPaint.setStrokeWidth(curOutCircleWidth);
-                        outProcessCirclePaint.setStrokeWidth(curOutCircleWidth);
-                        outProcessIntervalCirclePaint.setStrokeWidth(curOutCircleWidth);
-                        outMostWhiteCirclePaint.setStrokeWidth(curOutCircleWidth);
-                        outBlackCircleRadius = (outMostCircleRadius + outIncDis - curOutCircleWidth / 2.0F);
-                        outMostBlackCircleRadius = (curOutCircleWidth / 2.0F + (outMostCircleRadius + outIncDis));
-                        outMostCircleRect = new RectF(centerX - outMostCircleRadius - outIncDis, centerY - outMostCircleRadius - outIncDis, centerX + outMostCircleRadius + outIncDis, centerY + outMostCircleRadius + outIncDis);
-                        translucentCircleRadius = (int) (outIncDis + outMostCircleRadius);
-                        innerCircleRadiusToDraw = calPercent * innerCircleRadiusWhenRecord;
-                    }
                     invalidate();
                 } else {
                     reset();
@@ -239,7 +225,7 @@ public class ClickOrLongButton extends View {
         // 整块
         mBoundingBoxSize = DisplayMetricsUtils.dip2px(100.0F);
         // 外线宽度
-        mOutCircleWidth = DisplayMetricsUtils.dip2px(2.3F);
+        mOutCircleWidth = DisplayMetricsUtils.dip2px(10F);
         mOuterCircleWidthInc = DisplayMetricsUtils.dip2px(4.3F);
         mInnerCircleRadius = DisplayMetricsUtils.dip2px(32.0F);
 

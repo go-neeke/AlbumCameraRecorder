@@ -51,6 +51,7 @@ public class CameraSpec {
         minDuration = 1500;
         videoEditCoordinator = null;
         watermarkResource = -1;
+        tipMsg = "";
     }
 
 
@@ -92,6 +93,8 @@ public class CameraSpec {
      * 水印资源id
      */
     public int watermarkResource = -1;
+
+    public String tipMsg = "";
 
 
     /**

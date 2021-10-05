@@ -86,6 +86,12 @@ public class CameraSetting implements CameraSettingApi {
     }
 
     @Override
+    public CameraSetting tipMsg(String tipMsg) {
+        mCameraSpec.tipMsg = tipMsg;
+        return this;
+    }
+
+    @Override
     public CameraSetting setOnCameraViewListener(@Nullable OnCameraViewListener listener) {
         mCameraSpec.onCameraViewListener = listener;
         return this;

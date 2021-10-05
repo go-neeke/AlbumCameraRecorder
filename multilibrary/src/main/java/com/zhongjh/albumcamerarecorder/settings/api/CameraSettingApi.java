@@ -99,6 +99,8 @@ public interface CameraSettingApi {
      */
     CameraSetting imageFlashAuto(int imageFlashAuto);
 
+    CameraSetting tipMsg(String tipMsg);
+
     /**
      * 有关CameraView事件
      * <p>

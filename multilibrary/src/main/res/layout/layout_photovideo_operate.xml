@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     android:background="#00000020">
 
-    <!-- 假如360的屏幕宽度 144的左右边距 126 38 -->
 
     <!-- 提示文本框 -->
     <TextView
@@ -23,6 +22,7 @@
         android:id="@+id/tvSectionRecord"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:tag="1"
         android:text="@string/z_multi_library_default_to_record"
         android:textColor="@color/white"
         android:textSize="8sp"
@@ -59,6 +59,17 @@
         app:type="confirm"
         tools:visibility="visible" />
 
+    <ImageView
+        android:id="@+id/imgClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTip"
+        app:srcCompat="@drawable/ic_back_to_list" />
+
+
     <!-- 中间的操作按钮 -->
     <com.zhongjh.albumcamerarecorder.widget.clickorlongbutton.ClickOrLongButton
         android:id="@+id/btnClickOrLong"
@@ -66,6 +77,7 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/imgClose"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTip" />
 

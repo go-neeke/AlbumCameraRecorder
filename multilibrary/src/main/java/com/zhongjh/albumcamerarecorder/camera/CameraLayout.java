@@ -375,21 +375,25 @@ public class CameraLayout extends RelativeLayout {
             mViewHolder.pvLayout.setTip(getResources().getString(R.string.z_multi_library_light_touch_take));
         } else if (mCameraSpec.onlySupportVideos()) {
             // 禁用点击功能
+            String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_long_press_camera);
             mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_ONLY_LONG_CLICK);
-            mViewHolder.pvLayout.setTip(getResources().getString(R.string.z_multi_library_long_press_camera));
+            mViewHolder.pvLayout.setTip(tipMsg);
         } else {
             // 支持所有，不过要判断数量
             if (SelectableUtils.getImageMaxCount() == 0) {
                 // 禁用点击功能
+                String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_long_press_camera);
                 mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_ONLY_LONG_CLICK);
-                mViewHolder.pvLayout.setTip(getResources().getString(R.string.z_multi_library_long_press_camera));
+                mViewHolder.pvLayout.setTip(tipMsg);
             } else if (SelectableUtils.getVideoMaxCount() == 0) {
                 // 禁用长按功能
+                String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_light_touch_take);
                 mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_ONLY_CLICK);
-                mViewHolder.pvLayout.setTip(getResources().getString(R.string.z_multi_library_light_touch_take));
+                mViewHolder.pvLayout.setTip(tipMsg);
             } else {
+                String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_light_touch_take_long_press_camera);
                 mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_BOTH);
-                mViewHolder.pvLayout.setTip(getResources().getString(R.string.z_multi_library_light_touch_take_long_press_camera));
+                mViewHolder.pvLayout.setTip(tipMsg);
             }
         }
     }
@@ -1197,7 +1201,9 @@ public class CameraLayout extends RelativeLayout {
         mViewHolder.pvLayout.getViewHolder().btnClickOrLong.resetState();
         // 显示右上角
         setSwitchVisibility(View.VISIBLE);
-        mViewHolder.imgFlash.setVisibility(View.VISIBLE);
+
+        // hide flash icon
+        mViewHolder.imgFlash.setVisibility(View.GONE);
 
         // 设置当前模式是图片休闲并存模式
         setState(Constants.STATE_PICTURE_PREVIEW);
