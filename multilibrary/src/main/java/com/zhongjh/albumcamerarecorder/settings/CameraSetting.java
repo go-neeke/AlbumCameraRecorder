@@ -1,5 +1,7 @@
 package com.zhongjh.albumcamerarecorder.settings;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -87,6 +89,7 @@ public class CameraSetting implements CameraSettingApi {
 
     @Override
     public CameraSetting tipMsg(String tipMsg) {
+        Log.d("A.lee", "msg");
         mCameraSpec.tipMsg = tipMsg;
         return this;
     }
