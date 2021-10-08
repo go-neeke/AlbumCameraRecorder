@@ -21,7 +21,6 @@
                 app:authority="com.zhongjh.cameraapp.fileprovider"
                 app:columnNumber="4"
                 app:columnSpace="10"
-                app:imageAddDrawable="@drawable/ic_add_gray"
                 app:imageDeleteDrawable="@drawable/ic_deleted_yellow"
                 app:imageEngine="com.zhongjh.cameraapp.configuration.Glide4EngineProgress"
                 app:maskingColor="?attr/colorPrimary"
