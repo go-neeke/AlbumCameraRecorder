@@ -34,4 +34,5 @@ dependencies {
     api project(':multilibrary')
     api project(':progresslibrary')
     api project(':albumCameraRecorderCommon')
+    api project(':videoedit')
 }
