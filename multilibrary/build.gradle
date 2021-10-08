@@ -47,6 +47,7 @@ dependencies {
 
     compileOnly project(':albumCameraRecorderCommon')
     compileOnly project(':imageedit')
+    compileOnly project(':videoedit')
 
     implementation 'com.github.go-neeke:VideoCrop:1.0.2'
 }
