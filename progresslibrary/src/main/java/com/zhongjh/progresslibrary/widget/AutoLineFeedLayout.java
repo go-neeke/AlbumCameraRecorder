@@ -2,6 +2,7 @@ package com.zhongjh.progresslibrary.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gaode.zhongjh.com.common.enums.MultimediaTypes;
+import gaode.zhongjh.com.common.utils.DisplayMetricsUtils;
 import gaode.zhongjh.com.common.utils.ThreadUtils;
 
 /**
@@ -232,7 +234,9 @@ public class AutoLineFeedLayout extends ViewGroup {
     @SuppressLint("InflateParams")
     public void init(int widthMeasureSpec) {
         if (mWidth == 0) {
-            mWidth = MeasureSpec.getSize(widthMeasureSpec);
+            mWidth = DisplayMetricsUtils.dip2px(400);
+            mItemHeight = DisplayMetricsUtils.dip2px(80);
+
             addView(viewHolderAdd.itemView);
             isAddAddView = true;
             Log.d(TAG + " Test", "addView");
@@ -241,6 +245,7 @@ public class AutoLineFeedLayout extends ViewGroup {
             if (mAddDrawable != null) {
                 viewHolderAdd.mpvImage.setImageDrawable(mAddDrawable);
             }
+            viewHolderAdd.mpvImage.setBackgroundColor(Color.rgb(242, 245, 247));
 
             if (!isOperation) {
                 Log.d(TAG, "viewHolderAdd.itemView.setVisibility(View.GONE)");
@@ -249,11 +254,11 @@ public class AutoLineFeedLayout extends ViewGroup {
                 Log.d(TAG, "viewHolderAdd.itemView.setVisibility(View.VISIBLE)");
                 checkLastImages();
             }
+        }
 
-            Log.d(TAG, "refreshView");
+        Log.d(TAG, "refreshView" + widthMeasureSpec);
 //            refreshImageView(imageList);
 //            refreshVideoView(videoList);
-        }
     }
 
     /**
@@ -463,8 +468,7 @@ public class AutoLineFeedLayout extends ViewGroup {
         // view的剩余宽度
         int viewWidth = (mWidth - sumColumnSpace) / columnNumber;
         layoutParams.width = viewWidth;
-        layoutParams.height = viewWidth;
-        mItemHeight = viewWidth;
+        layoutParams.height = mItemHeight;
         itemView.setLayoutParams(layoutParams);
     }
 
