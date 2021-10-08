@@ -71,9 +71,6 @@ public class SoundRecordingLayout extends BaseOperationLayout {
             this.ivRing = rootView.findViewById(R.id.ivRing);
             this.ivRecord = rootView.findViewById(R.id.ivRecord);
             this.rlSoundRecording = rootView.findViewById(R.id.rlSoundRecording);
-
-            // 设置成普通点击事件
-            this.btnConfirm.setProgressMode(false);
         }
 
     }

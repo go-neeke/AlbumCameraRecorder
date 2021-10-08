@@ -14,6 +14,8 @@ import com.zhongjh.albumcamerarecorder.R;
 import com.zhongjh.albumcamerarecorder.album.entity.Album;
 import com.zhongjh.albumcamerarecorder.settings.GlobalSpec;
 
+import gaode.zhongjh.com.common.utils.DisplayMetricsUtils;
+
 /**
  * 左上角的下拉框适配器
  *
@@ -57,8 +59,7 @@ public class AlbumsSpinnerAdapter extends CursorAdapter {
         ((TextView) view.findViewById(R.id.album_media_count)).setText(String.valueOf(album.getCount()));
 
         // do not need to load animated Gif
-        GlobalSpec.getInstance().imageEngine.loadThumbnail(context, context.getResources().getDimensionPixelSize(R
-                        .dimen.media_grid_size), mPlaceholder,
+        GlobalSpec.getInstance().imageEngine.loadThumbnail(context, DisplayMetricsUtils.dip2px(52), mPlaceholder,
                 view.findViewById(R.id.album_cover), album.getCoverUri());
     }
 }

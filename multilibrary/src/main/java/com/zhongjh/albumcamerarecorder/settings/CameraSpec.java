@@ -51,7 +51,8 @@ public class CameraSpec {
         minDuration = 1500;
         videoEditCoordinator = null;
         watermarkResource = -1;
-        tipMsg = "";
+        useImgFlash = true;
+        isSectionRecord = false;
     }
 
 
@@ -94,8 +95,9 @@ public class CameraSpec {
      */
     public int watermarkResource = -1;
 
-    public String tipMsg = "";
+    public boolean useImgFlash = true;
 
+    public boolean isSectionRecord = false;
 
     /**
      * 仅支持图片

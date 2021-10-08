@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -82,6 +83,8 @@ import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_PICTU
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_SHORT;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_VIDEO;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.REQUEST_CODE_PREVIEW_CAMRRA;
+
+import net.vrgsoft.videcrop.VideoCropActivity;
 
 /**
  * @author zhongjh
@@ -324,6 +327,7 @@ public class CameraLayout extends RelativeLayout {
                 new int[]{R.attr.album_thumbnail_placeholder});
         mPlaceholder = ta.getDrawable(0);
 
+        mIsSectionRecord = mCameraSpec.isSectionRecord;
 
     }
 
@@ -356,13 +360,9 @@ public class CameraLayout extends RelativeLayout {
             mViewHolder.pvLayout.getViewHolder().tvSectionRecord.setVisibility(View.GONE);
         }
 
-        // 处理图片、视频等需要进度显示
-        mViewHolder.pvLayout.getViewHolder().btnConfirm.setProgressMode(true);
-
         // 初始化cameraView
 
         setFlashLamp(); // 设置闪光灯模式
-        mViewHolder.imgSwitch.setImageResource(mCameraSpec.imageSwitch);
         // 设置录制时间
         mViewHolder.pvLayout.setDuration(mCameraSpec.duration * 1000);
         // 最短录制时间
@@ -370,28 +370,28 @@ public class CameraLayout extends RelativeLayout {
 
         // 判断点击和长按的权限
         if (mCameraSpec.onlySupportImages()) {
+            String tipMsg = getResources().getString(R.string.z_multi_library_light_touch_take);
             // 禁用长按功能
             mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_ONLY_CLICK);
-            mViewHolder.pvLayout.setTip(getResources().getString(R.string.z_multi_library_light_touch_take));
+            mViewHolder.pvLayout.setTip(tipMsg);
         } else if (mCameraSpec.onlySupportVideos()) {
             // 禁用点击功能
-            String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_long_press_camera);
+            String tipMsg = getResources().getString(R.string.z_multi_library_long_press_camera);
             mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_ONLY_LONG_CLICK);
             mViewHolder.pvLayout.setTip(tipMsg);
         } else {
             // 支持所有，不过要判断数量
             if (SelectableUtils.getImageMaxCount() == 0) {
                 // 禁用点击功能
-                String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_long_press_camera);
-                mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_ONLY_LONG_CLICK);
+                String tipMsg = getResources().getString(R.string.z_multi_library_long_press_camera);
                 mViewHolder.pvLayout.setTip(tipMsg);
             } else if (SelectableUtils.getVideoMaxCount() == 0) {
                 // 禁用长按功能
-                String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_light_touch_take);
+                String tipMsg = getResources().getString(R.string.z_multi_library_light_touch_take);
                 mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_ONLY_CLICK);
                 mViewHolder.pvLayout.setTip(tipMsg);
             } else {
-                String tipMsg = mCameraSpec.tipMsg.isEmpty() ? mCameraSpec.tipMsg : getResources().getString(R.string.z_multi_library_light_touch_take_long_press_camera);
+                String tipMsg = getResources().getString(R.string.z_multi_library_light_touch_take_long_press_camera);
                 mViewHolder.pvLayout.setButtonFeatures(BUTTON_STATE_BOTH);
                 mViewHolder.pvLayout.setTip(tipMsg);
             }
@@ -413,9 +413,6 @@ public class CameraLayout extends RelativeLayout {
 
         // 左右确认和取消
         initPvLayoutOperateListener();
-
-        // 录制界面按钮事件监听，目前只有一个，点击分段录制
-        initPvLayoutRecordListener();
 
         // 视频编辑后的事件，目前只有分段录制后合并
         initVideoEditListener();
@@ -486,10 +483,8 @@ public class CameraLayout extends RelativeLayout {
             }
         }
         mViewHolder.cameraView.destroy();
-        mViewHolder.pvLayout.getViewHolder().btnConfirm.reset();
         if (mCameraSpec.videoEditCoordinator != null) {
             mCameraSpec.videoEditCoordinator.onDestroy();
-            mCameraSpec.videoEditCoordinator = null;
         }
         mCameraViewGoneHandler.removeCallbacks(mCameraViewGoneRunnable);
         mCameraViewVisibleHandler.removeCallbacks(mCameraViewVisibleRunnable);
@@ -499,6 +494,12 @@ public class CameraLayout extends RelativeLayout {
      * 切换闪光灯模式
      */
     private void initImgFlashListener() {
+        Log.d("A.lee", "mCameraSpec.useImgFlash" + mCameraSpec.useImgFlash);
+        if (!mCameraSpec.useImgFlash) {
+            mViewHolder.imgFlash.setVisibility(INVISIBLE);
+            return;
+        }
+
         mViewHolder.imgFlash.setOnClickListener(v -> {
             mFlashType++;
             if (mFlashType > Constants.TYPE_FLASH_OFF) {
@@ -556,7 +557,7 @@ public class CameraLayout extends RelativeLayout {
                 Log.d(TAG, "onLongClickShort " + time);
                 mViewHolder.pvLayout.setTipAlphaAnimation(getResources().getString(R.string.z_multi_library_the_recording_time_is_too_short));  // 提示过短
                 setSwitchVisibility(VISIBLE);
-                mViewHolder.imgFlash.setVisibility(VISIBLE);
+                mViewHolder.imgFlash.setVisibility(mCameraSpec.useImgFlash ? VISIBLE : INVISIBLE);
                 postDelayed(() -> stopRecord(true), mCameraSpec.minDuration - time);
                 if (mClickOrLongListener != null) {
                     mClickOrLongListener.onLongClickShort(time);
@@ -589,6 +590,7 @@ public class CameraLayout extends RelativeLayout {
                 // 判断模式
                 if (mIsSectionRecord) {
                     mVideoTimes.add(time);
+                    mViewHolder.pvLayout.setData(mVideoTimes);
                     // 如果已经有录像缓存，那么就不执行这个动作了
                     if (mVideoPaths.size() <= 0) {
                         mViewHolder.pvLayout.startShowLeftRightButtonsAnimator();
@@ -624,18 +626,19 @@ public class CameraLayout extends RelativeLayout {
 
             @Override
             public void confirm() {
-
+                mNewSectionVideoPath = mVideoMediaStoreCompat.createFile(1, true).getPath();
+                mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
+                        mContext.getCacheDir().getPath() + File.separator + "cam.txt");
+                pvLayoutCommit();
             }
 
             @Override
             public void startProgress() {
                 if (mIsSectionRecord) {
                     // 合并视频
-                    mNewSectionVideoPath = mVideoMediaStoreCompat.createFile(1, true).getPath();
-                    mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
-                            mContext.getCacheDir().getPath() + File.separator + "cam.txt");
-                } else {
-                    pvLayoutCommit();
+
+//                } else {
+//                    pvLayoutCommit();
                 }
             }
 
@@ -648,21 +651,10 @@ public class CameraLayout extends RelativeLayout {
 
             @Override
             public void doneProgress() {
-                // 取消进度模式
-                mViewHolder.pvLayout.setProgressMode(false);
             }
         });
     }
 
-    /**
-     * 录制界面按钮事件监听，目前只有一个，点击分段录制
-     */
-    private void initPvLayoutRecordListener() {
-        mViewHolder.pvLayout.setRecordListener(tag -> {
-            mIsSectionRecord = "1".equals(tag);
-            mViewHolder.pvLayout.setProgressMode(true);
-        });
-    }
 
     /**
      * 视频编辑后的事件，目前 有分段录制后合并、压缩视频
@@ -672,16 +664,10 @@ public class CameraLayout extends RelativeLayout {
             mCameraSpec.videoEditCoordinator.setVideoMergeListener(new VideoEditListener() {
                 @Override
                 public void onFinish() {
-                    mViewHolder.pvLayout.getViewHolder().btnConfirm.setProgress(100);
                 }
 
                 @Override
                 public void onProgress(int progress, long progressTime) {
-                    if (progress >= PROGRESS_MAX) {
-                        mViewHolder.pvLayout.getViewHolder().btnConfirm.setProgress(99);
-                    } else {
-                        mViewHolder.pvLayout.getViewHolder().btnConfirm.setProgress(progress);
-                    }
                 }
 
                 @Override
@@ -725,17 +711,13 @@ public class CameraLayout extends RelativeLayout {
                         fragment.getActivity().overridePendingTransition(R.anim.activity_open, 0);
                         Log.d(TAG, "onVideoTaken " + result.getFile().getPath());
                     } else {
+                        Log.d(TAG, "onVideoTaken " + result.getFile().getPath());
                         // 加入视频列表
                         mVideoPaths.add(result.getFile().getPath());
                         // 显示当前进度
                         mViewHolder.pvLayout.setData(mVideoTimes);
                         // 创建新的file
                         mVideoFile = mVideoMediaStoreCompat.createFile(1, true);
-                        // 如果是在已经合成的情况下继续拍摄，那就重置状态
-                        if (!mViewHolder.pvLayout.getProgressMode()) {
-                            mViewHolder.pvLayout.setProgressMode(true);
-                            mViewHolder.pvLayout.resetConfim();
-                        }
                     }
                 } else {
                     Log.d(TAG, "onVideoTaken delete " + mVideoFile.getPath());
@@ -766,7 +748,7 @@ public class CameraLayout extends RelativeLayout {
      * 关闭事件
      */
     private void initImgCloseListener() {
-        mViewHolder.imgClose.setOnClickListener(v -> {
+        mViewHolder.btnCancel.setOnClickListener(v -> {
             if (mCloseListener != null) {
                 mCloseListener.onClose();
             }
@@ -867,9 +849,6 @@ public class CameraLayout extends RelativeLayout {
     private synchronized void pvLayoutCancel() {
         // 判断是不是分段录制并且超过1个视频
         if (mIsSectionRecord && mVideoPaths.size() >= 1) {
-            // 每次删除，后面都要重新合成,新合成的也删除
-            mViewHolder.pvLayout.setProgressMode(true);
-            mViewHolder.pvLayout.resetConfim();
             if (mNewSectionVideoPath != null) {
                 FileUtil.deleteFile(mNewSectionVideoPath);
             }
@@ -895,8 +874,11 @@ public class CameraLayout extends RelativeLayout {
     private synchronized void pvLayoutCommit() {
         if (mIsSectionRecord && mVideoPaths.size() >= 1) {
             // 打开新的界面预览视频
-            PreviewVideoActivity.startActivity(fragment, mNewSectionVideoPath);
+//            PreviewVideoActivity.startActivity(fragment, mNewSectionVideoPath);
+            String outputPath = "/storage/emulated/0/YDXJ08599.mp4";
+            fragment.getActivity().startActivityForResult(VideoCropActivity.createIntent(getContext(), mNewSectionVideoPath, outputPath), 20012);
             fragment.getActivity().overridePendingTransition(R.anim.activity_open, 0);
+
         } else {
             // 根据不同状态处理相应的事件
             if (getState() == Constants.STATE_PICTURE) {
@@ -976,7 +958,7 @@ public class CameraLayout extends RelativeLayout {
                 break;
         }
         setSwitchVisibility(VISIBLE);
-        mViewHolder.imgFlash.setVisibility(VISIBLE);
+        mViewHolder.imgFlash.setVisibility(mCameraSpec.useImgFlash ? VISIBLE : INVISIBLE);
     }
 
     /**
@@ -1007,9 +989,7 @@ public class CameraLayout extends RelativeLayout {
      * 迁移图片文件，缓存文件迁移到配置目录
      */
     private void movePictureFile() {
-        // 执行等待动画
-        mViewHolder.pvLayout.getViewHolder().btnConfirm.setProgress(1);
-        // 开始迁移文件
+        //  开始迁移文件
         ThreadUtils.executeByIo(new ThreadUtils.BaseSimpleBaseTask<Void>() {
             @Override
             public Void doInBackground() {
@@ -1042,7 +1022,6 @@ public class CameraLayout extends RelativeLayout {
                             newPaths.add(file.getAbsolutePath());
                             Log.d(TAG, file.getAbsolutePath());
                             ThreadUtils.runOnUiThread(() -> {
-                                mViewHolder.pvLayout.getViewHolder().btnConfirm.addProgress(progress);
                                 // 是否拷贝完所有文件
                                 currentCount++;
                                 if (currentCount >= maxCount) {
@@ -1203,7 +1182,7 @@ public class CameraLayout extends RelativeLayout {
         setSwitchVisibility(View.VISIBLE);
 
         // hide flash icon
-        mViewHolder.imgFlash.setVisibility(View.GONE);
+        mViewHolder.imgFlash.setVisibility(mCameraSpec.useImgFlash ? VISIBLE : INVISIBLE);
 
         // 设置当前模式是图片休闲并存模式
         setState(Constants.STATE_PICTURE_PREVIEW);
@@ -1234,6 +1213,11 @@ public class CameraLayout extends RelativeLayout {
      * 设置闪关灯
      */
     private void setFlashLamp() {
+        if (!mCameraSpec.useImgFlash) {
+            mViewHolder.imgFlash.setVisibility(INVISIBLE);
+            return;
+        }
+
         switch (mFlashType) {
             case Constants.TYPE_FLASH_AUTO:
                 mViewHolder.imgFlash.setImageResource(mCameraSpec.imageFlashAuto);
@@ -1335,7 +1319,7 @@ public class CameraLayout extends RelativeLayout {
         View vLine1;
         View vLine2;
         View vLine3;
-        ImageView imgClose;
+        ImageButton btnCancel;
         CameraView cameraView;
         ConstraintLayout clMenu;
         RelativeLayout rlEdit;
@@ -1353,7 +1337,7 @@ public class CameraLayout extends RelativeLayout {
             this.vLine1 = rootView.findViewById(R.id.vLine1);
             this.vLine2 = rootView.findViewById(R.id.vLine2);
             this.vLine3 = rootView.findViewById(R.id.vLine3);
-            this.imgClose = rootView.findViewById(R.id.imgClose);
+            this.btnCancel = rootView.findViewById(R.id.btnCancel);
             this.cameraView = rootView.findViewById(R.id.cameraView);
             this.clMenu = rootView.findViewById(R.id.clMenu);
             this.rlEdit = rootView.findViewById(R.id.rlEdit);

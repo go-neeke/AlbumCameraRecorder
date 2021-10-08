@@ -19,6 +19,7 @@ import com.zhongjh.cameraapp.databinding.ActivityMainSuperSimpleBinding;
 import com.zhongjh.combined.Combined;
 import com.zhongjh.progresslibrary.entity.MultiMediaView;
 import com.zhongjh.progresslibrary.listener.AbstractMaskProgressLayoutListener;
+import com.zhongjh.videoedit.VideoEditManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,9 +96,14 @@ public class MainSuperSimpleActivity extends AppCompatActivity {
         CameraSetting cameraSetting = new CameraSetting();
         // 支持的类型：图片，视频
         cameraSetting.mimeTypeSet(MimeType.ofAll());
+        cameraSetting.useImgFlash(false);
+        cameraSetting.isSectionRecord(true);
+
+        cameraSetting.videoEdit(new VideoEditManager());
 
         // 相册
         AlbumSetting albumSetting = new AlbumSetting(false);
+        albumSetting.spanCount(4);
 
         // 录音机
         RecorderSetting recorderSetting = new RecorderSetting();
@@ -108,9 +114,9 @@ public class MainSuperSimpleActivity extends AppCompatActivity {
         // 开启相册功能
         mGlobalSetting.albumSetting(albumSetting);
         // 开启拍摄功能
-        mGlobalSetting.cameraSetting(cameraSetting);
+//        mGlobalSetting.cameraSetting(cameraSetting);
         // 开启录音功能
-        mGlobalSetting.recorderSetting(recorderSetting);
+//        mGlobalSetting.recorderSetting(recorderSetting);
 
         mGlobalSetting
                 // 设置路径和7.0保护路径等等
@@ -119,12 +125,14 @@ public class MainSuperSimpleActivity extends AppCompatActivity {
                 .imageEngine(new Glide4Engine())
                 // 最大5张图片、最大3个视频、最大1个音频
                 .maxSelectablePerMediaType(null,
-                        5,
-                        3,
-                        3,
+                        9,
+                        1,
+                        0,
                         0,
                         0,
                         0);
+
+        mGlobalSetting.theme(R.style.AppTheme_Zaihan);
 
         // 这里是将AlbumCameraRecorder和Mask控件合并
         mCombined = new Combined(MainSuperSimpleActivity.this, REQUEST_CODE_CHOOSE,

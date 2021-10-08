@@ -2,9 +2,12 @@ package com.zhongjh.albumcamerarecorder.album.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -78,6 +81,15 @@ public class MediaGrid extends SquareFrameLayout implements View.OnClickListener
             } else if (view == mCheckView) {
                 // 勾选的点击事件
                 mListener.onCheckViewClicked(mCheckView, mMedia, mPreBindInfo.mViewHolder);
+                Log.d("A.lee", "mCheckView.isChecked() = " + mCheckView.isChecked());
+                if (mCheckView.isChecked()) {
+                    mThumbnail.setBackground(null);
+
+                } else {
+                    Drawable highlight = getResources().getDrawable(R.drawable.thumnail_selector);
+                    mThumbnail.setBackground(highlight);
+
+                }
             }
         }
     }
@@ -88,6 +100,7 @@ public class MediaGrid extends SquareFrameLayout implements View.OnClickListener
 
     /**
      * 绑定值
+     *
      * @param item 值
      */
     public void bindMedia(MultiMedia item) {
@@ -114,14 +127,16 @@ public class MediaGrid extends SquareFrameLayout implements View.OnClickListener
 
     /**
      * 设置是否启用
+     *
      * @param enabled 启用
      */
     public void setCheckEnabled(boolean enabled) {
-            mCheckView.setEnabled(enabled);
+        mCheckView.setEnabled(enabled);
     }
 
     /**
      * 设置当前选择的第几个
+     *
      * @param checkedNum 数量
      */
     public void setCheckedNum(int checkedNum) {
@@ -130,6 +145,7 @@ public class MediaGrid extends SquareFrameLayout implements View.OnClickListener
 
     /**
      * 设置当前的单选框为选择
+     *
      * @param checked 是否选择
      */
     public void setChecked(boolean checked) {

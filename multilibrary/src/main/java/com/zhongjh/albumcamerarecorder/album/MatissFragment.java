@@ -12,10 +12,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -46,6 +48,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+
 import gaode.zhongjh.com.common.entity.MultiMedia;
 import gaode.zhongjh.com.common.enums.MimeType;
 import gaode.zhongjh.com.common.enums.MultimediaTypes;
@@ -173,7 +176,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         int color = ta.getColor(0, 0);
         ta.recycle();
         if (navigationIcon != null) {
-            ColorFilterUtil.setColorFilterSrcIn(navigationIcon,color);
+            ColorFilterUtil.setColorFilterSrcIn(navigationIcon, color);
         }
         mSelectedCollection.onCreate(savedInstanceState, false);
         if (savedInstanceState != null) {
@@ -184,8 +187,20 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         mAlbumsSpinnerAdapter = new AlbumsSpinnerAdapter(mContext, null, false);
         mAlbumsSpinner = new AlbumsSpinner(mContext);
         mAlbumsSpinner.setSelectedTextView(mViewHolder.selectedAlbum);
-        mAlbumsSpinner.setPopupAnchorView(mViewHolder.toolbar);
+        mAlbumsSpinner.setPopupAnchorView(mViewHolder.bottomToolbar);
         mAlbumsSpinner.setAdapter(mAlbumsSpinnerAdapter);
+
+        mViewHolder.container.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                // Ensure you call it only once :
+                mViewHolder.container.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                mAlbumsSpinner.setHeight(mViewHolder.container.getMeasuredHeight());
+                // Here you can get the size :)
+            }
+        });
+
         mAlbumCollection.onCreate(this, this);
         mAlbumCollection.onRestoreInstanceState(savedInstanceState);
         mAlbumCollection.loadAlbums();
@@ -495,13 +510,16 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
     }
 
 
-
     /**
      * 选择某个专辑的时候
      *
      * @param album 专辑
      */
     private void onAlbumSelected(Album album) {
+
+        String displayName = album.getDisplayName(this.getContext());
+        mViewHolder.selectedAlbum_title.setText(displayName);
+
         if (album.isAll() && album.isEmpty()) {
             // 如果是选择全部并且没有数据的话，显示空的view
             mViewHolder.container.setVisibility(View.GONE);
@@ -563,22 +581,23 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
      * @param count 当前选择的数量
      */
     private void showBottomView(int count) {
-        if (count > 0) {
-            // 显示底部
-            mViewHolder.bottomToolbar.setVisibility(View.VISIBLE);
-            // 隐藏母窗体的table
-            ((MainActivity) mActivity).showHideTableLayout(false);
-        } else {
-            // 显示底部
-            mViewHolder.bottomToolbar.setVisibility(View.GONE);
-            // 隐藏母窗体的table
-            ((MainActivity) mActivity).showHideTableLayout(true);
-        }
+//        if (count > 0) {
+        // 显示底部
+        mViewHolder.bottomToolbar.setVisibility(View.VISIBLE);
+        // 隐藏母窗体的table
+        ((MainActivity) mActivity).showHideTableLayout(false);
+//        } else {
+//            // 显示底部
+//            mViewHolder.bottomToolbar.setVisibility(View.GONE);
+//            // 隐藏母窗体的table
+//            ((MainActivity) mActivity).showHideTableLayout(true);
+//        }
     }
 
     public static class ViewHolder {
         public View rootView;
         public TextView selectedAlbum;
+        public TextView selectedAlbum_title;
         public Toolbar toolbar;
         public TextView buttonPreview;
         public CheckRadioView original;
@@ -594,6 +613,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         public ViewHolder(View rootView) {
             this.rootView = rootView;
             this.selectedAlbum = rootView.findViewById(R.id.selectedAlbum);
+            this.selectedAlbum_title = rootView.findViewById(R.id.selectedAlbum_title);
             this.toolbar = rootView.findViewById(R.id.toolbar);
             this.buttonPreview = rootView.findViewById(R.id.buttonPreview);
             this.original = rootView.findViewById(R.id.original);

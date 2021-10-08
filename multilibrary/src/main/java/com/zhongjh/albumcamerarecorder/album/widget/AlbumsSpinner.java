@@ -19,10 +19,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,6 +39,7 @@ import gaode.zhongjh.com.common.utils.ColorFilterUtil;
 
 /**
  * 专辑下拉框控件
+ *
  * @author zhongjh
  */
 public class AlbumsSpinner {
@@ -44,15 +49,14 @@ public class AlbumsSpinner {
     private TextView mSelected;
     private final ListPopupWindow mListPopupWindow;
     private AdapterView.OnItemSelectedListener mOnItemSelectedListener;
+    private int mHeight;
 
     public AlbumsSpinner(@NonNull Context context) {
         // 实例化ListPopupWindow控件
         mListPopupWindow = new ListPopupWindow(context, null, R.attr.listPopupWindowStyle);
         mListPopupWindow.setModal(true);
-        float density = context.getResources().getDisplayMetrics().density;
-        mListPopupWindow.setContentWidth((int) (216 * density));
-        mListPopupWindow.setHorizontalOffset((int) (16 * density));
-        mListPopupWindow.setVerticalOffset((int) (-48 * density));
+        mListPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        mListPopupWindow.setInputMethodMode(ListPopupWindow.INPUT_METHOD_NOT_NEEDED);
 
         // 点击事件
         mListPopupWindow.setOnItemClickListener((parent, view, position, id) -> {
@@ -126,28 +130,35 @@ public class AlbumsSpinner {
      *
      * @param textView 文本框
      */
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility"})
     public void setSelectedTextView(TextView textView) {
         mSelected = textView;
 
         // 设置下拉箭头的颜色跟album_element_color文本颜色一样
-        Drawable[] drawables = mSelected.getCompoundDrawables();
-        Drawable right = drawables[2];
-        TypedArray ta = mSelected.getContext().getTheme().obtainStyledAttributes(
-                new int[]{R.attr.album_element_color});
-        int color = ta.getColor(0, 0);
-        ta.recycle();
-        // 使用设置的主题颜色对目标Drawable(这里是一个小箭头)进行SRC_IN模式合成 达到改变Drawable颜色的效果
-        ColorFilterUtil.setColorFilterSrcIn(right,color);
+//        Drawable[] drawables = mSelected.getCompoundDrawables();
+//        Drawable right = drawables[2];
+//        TypedArray ta = mSelected.getContext().getTheme().obtainStyledAttributes(
+//                new int[]{R.attr.album_element_color});
+//        int color = ta.getColor(0, 0);
+//        ta.recycle();
+//        // 使用设置的主题颜色对目标Drawable(这里是一个小箭头)进行SRC_IN模式合成 达到改变Drawable颜色的效果
+//        ColorFilterUtil.setColorFilterSrcIn(right,color);
 
         mSelected.setVisibility(View.GONE);
         mSelected.setOnClickListener(v -> {
             // 显示选择框
-            int itemHeight = v.getResources().getDimensionPixelSize(R.dimen.album_item_height);
-            mListPopupWindow.setHeight(
-                    mAdapter.getCount() > MAX_SHOWN_COUNT ? itemHeight * MAX_SHOWN_COUNT
-                            : itemHeight * mAdapter.getCount());
+//            int itemHeight = v.getResources().getDimensionPixelSize(R.dimen.album_item_height);
+            mListPopupWindow.setHeight(mHeight);
             mListPopupWindow.show();
+
+            mListPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    mSelected.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_album_list_up, 0);
+                }
+            });
+
+            mSelected.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_album_list_down, 0);
         });
         // 设置textView向下拖拽可下拉ListPopupWindow
         mSelected.setOnTouchListener(mListPopupWindow.createDragToOpenListener(mSelected));
@@ -162,4 +173,7 @@ public class AlbumsSpinner {
         mListPopupWindow.setAnchorView(view);
     }
 
+    public void setHeight(int height) {
+        mHeight = height;
+    }
 }

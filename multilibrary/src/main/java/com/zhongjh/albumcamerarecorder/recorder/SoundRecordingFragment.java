@@ -125,9 +125,6 @@ public class SoundRecordingFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         mViewHolder = new ViewHolder(inflater.inflate(R.layout.fragment_soundrecording_zjh, container, false));
 
-        // 处理图片、视频等需要进度显示
-        mViewHolder.pvLayout.getViewHolder().btnConfirm.setProgressMode(true);
-
         // 初始化设置
         mRecordSpec = RecordeSpec.getInstance();
         // 提示文本
@@ -438,8 +435,6 @@ public class SoundRecordingFragment extends BaseFragment {
      * 迁移语音文件
      */
     private void moveRecordFile() {
-        // 执行等待动画
-        mViewHolder.pvLayout.getViewHolder().btnConfirm.setProgress(1);
         // 开始迁移文件
         ThreadUtils.executeByIo(new ThreadUtils.BaseSimpleBaseTask<Void>() {
             @Override
@@ -453,7 +448,6 @@ public class SoundRecordingFragment extends BaseFragment {
                 FileUtil.copy(new File(recordingItem.getFilePath()), newFile, null, (ioProgress, file) -> {
                     int progress = (int) (ioProgress * 100);
                     ThreadUtils.runOnUiThread(() -> {
-                        mViewHolder.pvLayout.getViewHolder().btnConfirm.addProgress(progress);
                         recordingItem.setFilePath(newFile.getPath());
                         if (progress >= 100) {
                             // 完成 获取音频路径

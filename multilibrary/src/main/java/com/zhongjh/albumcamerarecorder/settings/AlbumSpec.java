@@ -2,6 +2,7 @@ package com.zhongjh.albumcamerarecorder.settings;
 
 import gaode.zhongjh.com.common.enums.MimeType;
 
+import com.zhongjh.albumcamerarecorder.R;
 import com.zhongjh.albumcamerarecorder.album.filter.BaseFilter;
 import com.zhongjh.albumcamerarecorder.album.listener.OnCheckedListener;
 import com.zhongjh.albumcamerarecorder.album.listener.OnSelectedListener;
@@ -18,6 +19,7 @@ import java.util.Set;
  * @date 2018/12/27
  */
 public class AlbumSpec {
+
 
     private AlbumSpec() {
     }
@@ -46,8 +48,6 @@ public class AlbumSpec {
         originalable = false;
         originalMaxSize = Integer.MAX_VALUE;
     }
-
-    // region
 
     /**
      * 选择 mime 的类型，MimeType.allOf()

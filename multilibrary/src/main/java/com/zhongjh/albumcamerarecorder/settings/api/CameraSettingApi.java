@@ -62,6 +62,21 @@ public interface CameraSettingApi {
 
     /**
      * 水印资源,可通过layout赋值水印，所处于的位置等等都可通过layout本身来处理
+     * @param useImgFlash 水印资源的layout id
+     * @return {@link GlobalSetting} for fluent API.
+     */
+    CameraSetting useImgFlash(boolean useImgFlash);
+
+
+    /**
+     * 水印资源,可通过layout赋值水印，所处于的位置等等都可通过layout本身来处理
+     * @param isSectionRecord 水印资源的layout id
+     * @return {@link GlobalSetting} for fluent API.
+     */
+    CameraSetting isSectionRecord(boolean isSectionRecord);
+
+    /**
+     * 水印资源,可通过layout赋值水印，所处于的位置等等都可通过layout本身来处理
      * @param watermarkResource 水印资源的layout id
      * @return {@link GlobalSetting} for fluent API.
      */
@@ -98,8 +113,6 @@ public interface CameraSettingApi {
      * @return {@link GlobalSetting} for fluent API.
      */
     CameraSetting imageFlashAuto(int imageFlashAuto);
-
-    CameraSetting tipMsg(String tipMsg);
 
     /**
      * 有关CameraView事件

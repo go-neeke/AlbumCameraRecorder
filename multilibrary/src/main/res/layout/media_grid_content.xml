@@ -20,6 +20,7 @@
         android:id="@+id/media_thumbnail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="3dp"
         android:contentDescription="@string/z_multi_library_show_thumbnails" />
 
     <com.zhongjh.albumcamerarecorder.album.widget.CheckView

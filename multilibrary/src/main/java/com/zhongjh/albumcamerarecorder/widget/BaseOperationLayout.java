@@ -11,7 +11,9 @@ import androidx.annotation.Nullable;
 
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.zhongjh.albumcamerarecorder.R;
@@ -114,10 +116,10 @@ public abstract class BaseOperationLayout extends FrameLayout {
      * 按钮左右分开移动动画
      */
     ObjectAnimator mAnimatorConfirm;
-    ObjectAnimator mAnimatorCancel;
 
     /**
      * 创建
+     *
      * @return ViewHolder
      */
     protected abstract ViewHolder newViewHolder();
@@ -156,31 +158,9 @@ public abstract class BaseOperationLayout extends FrameLayout {
         viewHolder = newViewHolder();
 
         mAnimatorConfirm = ObjectAnimator.ofFloat(viewHolder.btnConfirm, "translationX", -mLayoutWidth / 4F, 0);
-        mAnimatorCancel = ObjectAnimator.ofFloat(viewHolder.btnCancel, "translationX", mLayoutWidth / 4F, 0);
 
         // 默认隐藏
-        viewHolder.btnCancel.setVisibility(GONE);
         viewHolder.btnConfirm.setVisibility(GONE);
-
-        // 定制样式 .确认按钮,修改主色调
-        viewHolder.btnConfirm.setPrimaryColor(R.color.operation_background);
-        // 修改成铺满样式
-        viewHolder.btnConfirm.setFullStyle(true);
-        // 修改图片
-        viewHolder.btnConfirm.setFunctionImage(R.drawable.ic_baseline_done,
-                R.drawable.avd_done_to_stop, R.drawable.avd_stop_to_done);
-        // 修改进度颜色
-        viewHolder.btnConfirm.setFullProgressColor(R.color.click_button_inner_circle_no_operation_interval);
-
-        // 定制样式 .取消按钮 修改主色调
-        viewHolder.btnCancel.setPrimaryColor(R.color.operation_background);
-        // 修改成铺满样式
-        viewHolder.btnCancel.setFullStyle(true);
-        // 修改图片
-        viewHolder.btnCancel.setFunctionImage(R.drawable.ic_baseline_keyboard_arrow_left_24,
-                R.drawable.avd_done_to_stop, R.drawable.avd_stop_to_done);
-        // 取消进度模式
-        viewHolder.btnCancel.setProgressMode(false);
 
         initListener();
     }
@@ -250,25 +230,9 @@ public abstract class BaseOperationLayout extends FrameLayout {
      * 返回事件
      */
     private void btnCancelListener() {
-        viewHolder.btnCancel.setCircularProgressListener(new CircularProgressListener() {
-
+        viewHolder.btnCancel.setOnClickListener(new OnClickListener() {
             @Override
-            public void onStart() {
-
-            }
-
-            @Override
-            public void onDone() {
-
-            }
-
-            @Override
-            public void onStop() {
-
-            }
-
-            @Override
-            public void onClick() {
+            public void onClick(View v) {
                 if (mOperateListener != null) {
                     mOperateListener.cancel();
                 }
@@ -281,30 +245,9 @@ public abstract class BaseOperationLayout extends FrameLayout {
      * 提交事件
      */
     private void btnConfirmListener() {
-        viewHolder.btnConfirm.setCircularProgressListener(new CircularProgressListener() {
+        viewHolder.btnConfirm.setOnClickListener(new OnClickListener() {
             @Override
-            public void onStart() {
-                if (mOperateListener != null) {
-                    mOperateListener.startProgress();
-                }
-            }
-
-            @Override
-            public void onDone() {
-                if (mOperateListener != null) {
-                    mOperateListener.doneProgress();
-                }
-            }
-
-            @Override
-            public void onStop() {
-                if (mOperateListener != null) {
-                    mOperateListener.stopProgress();
-                }
-            }
-
-            @Override
-            public void onClick() {
+            public void onClick(View v) {
                 if (mOperateListener != null) {
                     mOperateListener.confirm();
                 }
@@ -327,14 +270,12 @@ public abstract class BaseOperationLayout extends FrameLayout {
     public void startShowLeftRightButtonsAnimator() {
         // 显示提交和取消按钮
         viewHolder.btnConfirm.setVisibility(VISIBLE);
-        viewHolder.btnCancel.setVisibility(VISIBLE);
         // 动画未结束前不能让它们点击
         viewHolder.btnConfirm.setClickable(false);
-        viewHolder.btnCancel.setClickable(false);
 
         // 显示动画
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(mAnimatorCancel, mAnimatorConfirm);
+        animatorSet.play(mAnimatorConfirm);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -435,7 +376,6 @@ public abstract class BaseOperationLayout extends FrameLayout {
     public void reset() {
         viewHolder.btnClickOrLong.resetState();
         // 隐藏第二层的view
-        viewHolder.btnCancel.setVisibility(View.GONE);
         viewHolder.btnConfirm.setVisibility(View.GONE);
         // 显示第一层的view
         viewHolder.btnClickOrLong.setVisibility(View.VISIBLE);
@@ -475,31 +415,11 @@ public abstract class BaseOperationLayout extends FrameLayout {
         viewHolder.btnClickOrLong.invalidate();
     }
 
-    /**
-     * 是否启用进度模式
-     */
-    public void setProgressMode(boolean isProgress) {
-        viewHolder.btnConfirm.setProgressMode(isProgress);
-    }
-
-    /**
-     * @return 获取当前是否进度模式
-     */
-    public boolean getProgressMode() {
-        return viewHolder.btnConfirm.mIsProgress;
-    }
-
-    /**
-     * 重置btnConfirm
-     */
-    public void resetConfim() {
-        viewHolder.btnConfirm.reset();
-    }
 
     public static class ViewHolder {
         View rootView;
-        CircularProgress btnCancel;
-        public CircularProgress btnConfirm;
+        ImageButton btnCancel;
+        public Button btnConfirm;
         public ClickOrLongButton btnClickOrLong;
         TextView tvTip;
         public TextView tvSectionRecord;

@@ -58,6 +58,18 @@ public class CameraSetting implements CameraSettingApi {
     }
 
     @Override
+    public CameraSetting useImgFlash(boolean useImgFlash) {
+        mCameraSpec.useImgFlash = useImgFlash;
+        return this;
+    }
+
+    @Override
+    public CameraSetting isSectionRecord(boolean isSectionRecord) {
+        mCameraSpec.isSectionRecord = isSectionRecord;
+        return this;
+    }
+
+    @Override
     public CameraSetting watermarkResource(int watermarkResource) {
         mCameraSpec.watermarkResource = watermarkResource;
         return this;
@@ -84,13 +96,6 @@ public class CameraSetting implements CameraSettingApi {
     @Override
     public CameraSetting imageFlashAuto(int imageFlashAuto) {
         mCameraSpec.imageFlashAuto = imageFlashAuto;
-        return this;
-    }
-
-    @Override
-    public CameraSetting tipMsg(String tipMsg) {
-        Log.d("A.lee", "msg");
-        mCameraSpec.tipMsg = tipMsg;
         return this;
     }
 

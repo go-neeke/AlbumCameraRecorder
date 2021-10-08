@@ -2,6 +2,7 @@ package com.zhongjh.albumcamerarecorder.camera.util;
 
 /**
  * 文本工具类
+ *
  * @author zhongjh
  * @date 2021/9/18
  */
@@ -23,6 +24,11 @@ public class StringUtils {
             }
         }
         return true;
+    }
+
+    private String getColoredSpanned(String text, String color) {
+        String input = "<font color=" + color + ">" + text + "</font>";
+        return input;
     }
 
 }
