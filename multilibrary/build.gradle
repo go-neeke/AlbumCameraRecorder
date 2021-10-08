@@ -49,5 +49,5 @@ dependencies {
     compileOnly project(':imageedit')
     compileOnly project(':videoedit')
 
-    implementation 'com.github.go-neeke:VideoCrop:1.0.2'
+    implementation 'com.github.go-neeke:VideoCrop:1.0.3'
 }
