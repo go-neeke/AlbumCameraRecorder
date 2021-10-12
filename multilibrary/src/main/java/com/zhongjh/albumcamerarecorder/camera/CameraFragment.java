@@ -11,8 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
+import com.gowtham.library.utils.CompressOption;
+import com.gowtham.library.utils.TrimVideo;
 import com.zhongjh.albumcamerarecorder.BaseFragment;
 import com.zhongjh.albumcamerarecorder.MainActivity;
 import com.zhongjh.albumcamerarecorder.R;
@@ -23,12 +27,18 @@ import com.zhongjh.albumcamerarecorder.camera.listener.CaptureListener;
 import com.zhongjh.albumcamerarecorder.camera.listener.ClickOrLongListener;
 import com.zhongjh.albumcamerarecorder.camera.listener.ErrorListener;
 import com.zhongjh.albumcamerarecorder.camera.listener.OperateCameraListener;
+import com.zhongjh.albumcamerarecorder.camera.util.FileUtil;
 import com.zhongjh.albumcamerarecorder.preview.BasePreviewActivity;
+import com.zhongjh.albumcamerarecorder.settings.CameraSpec;
+import com.zhongjh.albumcamerarecorder.settings.GlobalSpec;
+import com.zhongjh.albumcamerarecorder.utils.BitmapUtils;
 import com.zhongjh.albumcamerarecorder.utils.ViewBusinessUtils;
 import com.zhongjh.imageedit.ImageEditActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ListIterator;
@@ -36,9 +46,13 @@ import java.util.Map;
 
 import gaode.zhongjh.com.common.entity.MultiMedia;
 import gaode.zhongjh.com.common.enums.MultimediaTypes;
+import gaode.zhongjh.com.common.listener.VideoEditListener;
+import gaode.zhongjh.com.common.utils.MediaStoreCompat;
 import gaode.zhongjh.com.common.utils.StatusBarUtils;
+import gaode.zhongjh.com.common.utils.ThreadUtils;
 
 import static android.app.Activity.RESULT_OK;
+import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_VIDEO;
 import static com.zhongjh.albumcamerarecorder.preview.BasePreviewActivity.REQ_IMAGE_EDIT;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_CHOICE;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_TYPES;
@@ -68,6 +82,32 @@ public class CameraFragment extends BaseFragment {
      * 是否提交,如果不是提交则要删除冗余文件
      */
     private boolean mIsCommit = false;
+
+    private MediaStoreCompat mVideoMediaStoreCompat;
+
+
+    private final ActivityResultLauncher<Intent> startForResult =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK &&
+                                result.getData() != null) {
+                            Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
+                            Log.d("A.lee", "Trimmed path:: " + uri);
+                            Intent resultIntent = new Intent();
+                            ArrayList<Uri> selectedUris = new ArrayList<>();
+                            selectedUris.add(uri);
+                            resultIntent.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
+                            resultIntent.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
+                            resultIntent.putExtra(EXTRA_MULTIMEDIA_CHOICE, true);
+                            mActivity.setResult(RESULT_OK, resultIntent);
+                            mActivity.finish();
+                        } else {
+
+                        }
+//                            LogMessage.v("videoTrimResultLauncher data is null");
+                    });
+
 
     public static CameraFragment newInstance() {
         CameraFragment cameraFragment = new CameraFragment();
@@ -104,6 +144,8 @@ public class CameraFragment extends BaseFragment {
             }
         });
 
+        mVideoMediaStoreCompat = new MediaStoreCompat(mActivity);
+
         initCameraLayoutCloseListener();
         initCameraLayoutPhotoVideoListener();
         initCameraLayoutOperateCameraListener();
@@ -112,6 +154,60 @@ public class CameraFragment extends BaseFragment {
 
         return view;
     }
+
+    public void goVideoTrim(Uri path) {
+        TrimVideo.activity(String.valueOf(path))
+                .setCompressOption(new CompressOption()) //empty constructor for default compress option
+                .start(mActivity, startForResult);
+    }
+
+    public void confirmVideo(String path) {
+        GlobalSpec mGlobalSpec = GlobalSpec.getInstance();
+        mVideoMediaStoreCompat.setSaveStrategy(mGlobalSpec.videoStrategy == null ? mGlobalSpec.saveStrategy : mGlobalSpec.videoStrategy);
+        // 开始迁移文件，将 缓存文件 拷贝到 配置目录
+        ThreadUtils.executeByIo(new ThreadUtils.BaseSimpleBaseTask<Void>() {
+            @Override
+            public Void doInBackground() {
+                // 获取文件名称
+                String newFileName = path.substring(path.lastIndexOf(File.separator));
+                File newFile = mVideoMediaStoreCompat.createFile(newFileName, 1, false);
+                FileUtil.copy(new File(path), newFile, null, (ioProgress, file) -> {
+                    if (ioProgress >= 1) {
+                        ThreadUtils.runOnUiThread(() -> {
+                            confirm(newFile);
+                        });
+                    }
+                });
+                return null;
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+
+            }
+        });
+    }
+
+    /**
+     * 确定该视频
+     */
+    private void confirm(File newFile) {
+        // 加入视频到android系统库里面
+        Uri mediaUri = BitmapUtils.displayToGallery(mActivity.getApplicationContext(), newFile, TYPE_VIDEO, -1, mVideoMediaStoreCompat.getSaveStrategy().directory, mVideoMediaStoreCompat);
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add(newFile.getPath());
+        ArrayList<Uri> arrayListUri = new ArrayList<>();
+        arrayListUri.add(mediaUri);
+        // 获取视频路径
+        Intent result = new Intent();
+        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
+        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
+        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
+        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
+        mActivity.setResult(RESULT_OK, result);
+        mActivity.finish();
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

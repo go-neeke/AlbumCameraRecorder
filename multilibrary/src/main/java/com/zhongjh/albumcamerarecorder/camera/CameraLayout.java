@@ -1,6 +1,9 @@
 package com.zhongjh.albumcamerarecorder.camera;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -24,10 +27,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.gowtham.library.utils.CompressOption;
+import com.gowtham.library.utils.TrimVideo;
 import com.otaliastudios.cameraview.CameraException;
 import com.otaliastudios.cameraview.CameraListener;
 import com.otaliastudios.cameraview.CameraView;
@@ -82,9 +89,10 @@ import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_DEFAU
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_PICTURE;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_SHORT;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_VIDEO;
+import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_CHOICE;
+import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_TYPES;
+import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_RESULT_SELECTION;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.REQUEST_CODE_PREVIEW_CAMRRA;
-
-import net.vrgsoft.videcrop.VideoCropActivity;
 
 /**
  * @author zhongjh
@@ -231,8 +239,7 @@ public class CameraLayout extends RelativeLayout {
      * 拍摄后操作图片的事件
      */
     private CaptureListener mCaptureListener;
-    private Fragment fragment;
-
+    private CameraFragment fragment;
 
     // 赋值Camera错误回调
 
@@ -629,29 +636,18 @@ public class CameraLayout extends RelativeLayout {
                 mNewSectionVideoPath = mVideoMediaStoreCompat.createFile(1, true).getPath();
                 mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
                         mContext.getCacheDir().getPath() + File.separator + "cam.txt");
-                pvLayoutCommit();
+                fragment.confirmVideo(mNewSectionVideoPath);
             }
 
             @Override
-            public void startProgress() {
-                if (mIsSectionRecord) {
-                    // 合并视频
-
-//                } else {
-//                    pvLayoutCommit();
-                }
+            public void preview() {
+                File newSectionVideo = mVideoMediaStoreCompat.createFile(1, true);
+                mNewSectionVideoPath = mVideoMediaStoreCompat.createFile(1, true).getPath();
+                mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
+                        mContext.getCacheDir().getPath() + File.separator + "cam.txt");
+                fragment.goVideoTrim(Uri.fromFile(newSectionVideo));
             }
 
-            @Override
-            public void stopProgress() {
-                if (mCameraSpec.videoEditCoordinator != null) {
-                    mCameraSpec.videoEditCoordinator.onDestroy();
-                }
-            }
-
-            @Override
-            public void doneProgress() {
-            }
         });
     }
 
@@ -705,20 +701,13 @@ public class CameraLayout extends RelativeLayout {
                 super.onVideoTaken(result);
                 // 判断是否短时间结束
                 if (!mIsShort) {
-                    if (!mIsSectionRecord) {
-                        //  如果录制结束，打开该视频。打开底部菜单
-                        PreviewVideoActivity.startActivity(fragment, result.getFile().getPath());
-                        fragment.getActivity().overridePendingTransition(R.anim.activity_open, 0);
-                        Log.d(TAG, "onVideoTaken " + result.getFile().getPath());
-                    } else {
-                        Log.d(TAG, "onVideoTaken " + result.getFile().getPath());
-                        // 加入视频列表
-                        mVideoPaths.add(result.getFile().getPath());
-                        // 显示当前进度
-                        mViewHolder.pvLayout.setData(mVideoTimes);
-                        // 创建新的file
-                        mVideoFile = mVideoMediaStoreCompat.createFile(1, true);
-                    }
+                    Log.d(TAG, "onVideoTaken " + result.getFile().getPath());
+                    // 加入视频列表
+                    mVideoPaths.add(result.getFile().getPath());
+                    // 显示当前进度
+                    mViewHolder.pvLayout.setData(mVideoTimes);
+                    // 创建新的file
+                    mVideoFile = mVideoMediaStoreCompat.createFile(1, true);
                 } else {
                     Log.d(TAG, "onVideoTaken delete " + mVideoFile.getPath());
                     FileUtil.deleteFile(mVideoFile);
@@ -865,35 +854,6 @@ public class CameraLayout extends RelativeLayout {
             }
         } else {
             cancelOnReset();
-        }
-    }
-
-    /**
-     * 提交核心事件
-     */
-    private synchronized void pvLayoutCommit() {
-        if (mIsSectionRecord && mVideoPaths.size() >= 1) {
-            // 打开新的界面预览视频
-//            PreviewVideoActivity.startActivity(fragment, mNewSectionVideoPath);
-            String outputPath = "/storage/emulated/0/YDXJ08599.mp4";
-            fragment.getActivity().startActivityForResult(VideoCropActivity.createIntent(getContext(), mNewSectionVideoPath, outputPath), 20012);
-            fragment.getActivity().overridePendingTransition(R.anim.activity_open, 0);
-
-        } else {
-            // 根据不同状态处理相应的事件
-            if (getState() == Constants.STATE_PICTURE) {
-                // 图片模式的提交
-                confirmState(TYPE_PICTURE);
-                // 设置空闲状态
-                setState(Constants.STATE_PREVIEW);
-            } else if (getState() == Constants.STATE_VIDEO) {
-                confirmState(TYPE_VIDEO);
-                // 设置空闲状态
-                setState(Constants.STATE_PREVIEW);
-            } else if (getState() == Constants.STATE_PICTURE_PREVIEW) {
-                // 图片模式的提交
-                confirmState(TYPE_PICTURE);
-            }
         }
     }
 

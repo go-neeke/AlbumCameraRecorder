@@ -51,32 +51,11 @@ public abstract class BaseOperationLayout extends FrameLayout {
      * 操作按钮的Listener
      */
     public interface OperateListener {
-
-        /**
-         * 取消
-         */
         void cancel();
 
-        /**
-         * 确认
-         */
         void confirm();
 
-        /**
-         * 开始进度操作，目前只用于分段录制
-         */
-        void startProgress();
-
-        /**
-         * 取消进度操作，目前只用于分段录制
-         */
-        void stopProgress();
-
-        /**
-         * 进度完成
-         */
-        void doneProgress();
-
+        void preview();
     }
 
     public void setPhotoVideoListener(ClickOrLongListener clickOrLongListener) {
@@ -116,6 +95,7 @@ public abstract class BaseOperationLayout extends FrameLayout {
      * 按钮左右分开移动动画
      */
     ObjectAnimator mAnimatorConfirm;
+    ObjectAnimator mAnimatorPreview;
 
     /**
      * 创建
@@ -158,9 +138,12 @@ public abstract class BaseOperationLayout extends FrameLayout {
         viewHolder = newViewHolder();
 
         mAnimatorConfirm = ObjectAnimator.ofFloat(viewHolder.btnConfirm, "translationX", -mLayoutWidth / 4F, 0);
+        mAnimatorPreview = ObjectAnimator.ofFloat(viewHolder.btnPreview, "translationX", mLayoutWidth / 4F, 0);
 
         // 默认隐藏
         viewHolder.btnConfirm.setVisibility(GONE);
+        viewHolder.btnPreview.setVisibility(GONE);
+        viewHolder.btnCancel.setVisibility(VISIBLE);
 
         initListener();
     }
@@ -172,6 +155,7 @@ public abstract class BaseOperationLayout extends FrameLayout {
         btnClickOrLongListener();
         btnCancelListener();
         btnConfirmListener();
+        btnPreviewListener();
     }
 
     /**
@@ -257,6 +241,21 @@ public abstract class BaseOperationLayout extends FrameLayout {
     }
 
     /**
+     * 提交事件
+     */
+    private void btnPreviewListener() {
+        viewHolder.btnPreview.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOperateListener != null) {
+                    mOperateListener.preview();
+                }
+                startTipAlphaAnimation();
+            }
+        });
+    }
+
+    /**
      * 隐藏中间的核心操作按钮
      */
     public void hideBtnClickOrLong() {
@@ -269,20 +268,22 @@ public abstract class BaseOperationLayout extends FrameLayout {
      */
     public void startShowLeftRightButtonsAnimator() {
         // 显示提交和取消按钮
+        viewHolder.btnCancel.setVisibility(GONE);
         viewHolder.btnConfirm.setVisibility(VISIBLE);
+        viewHolder.btnPreview.setVisibility(VISIBLE);
         // 动画未结束前不能让它们点击
         viewHolder.btnConfirm.setClickable(false);
-
+        viewHolder.btnPreview.setClickable(false);
         // 显示动画
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.play(mAnimatorConfirm);
+        animatorSet.playTogether(mAnimatorPreview, mAnimatorConfirm);
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 // 动画结束使得按钮可点击
                 viewHolder.btnConfirm.setClickable(true);
-                viewHolder.btnCancel.setClickable(true);
+                viewHolder.btnPreview.setClickable(true);
             }
         });
         animatorSet.setDuration(300);
@@ -376,7 +377,9 @@ public abstract class BaseOperationLayout extends FrameLayout {
     public void reset() {
         viewHolder.btnClickOrLong.resetState();
         // 隐藏第二层的view
+        viewHolder.btnCancel.setVisibility(VISIBLE);
         viewHolder.btnConfirm.setVisibility(View.GONE);
+        viewHolder.btnPreview.setVisibility(View.GONE);
         // 显示第一层的view
         viewHolder.btnClickOrLong.setVisibility(View.VISIBLE);
     }
@@ -420,6 +423,7 @@ public abstract class BaseOperationLayout extends FrameLayout {
         View rootView;
         ImageButton btnCancel;
         public Button btnConfirm;
+        public Button btnPreview;
         public ClickOrLongButton btnClickOrLong;
         TextView tvTip;
         public TextView tvSectionRecord;
@@ -428,6 +432,7 @@ public abstract class BaseOperationLayout extends FrameLayout {
             this.rootView = rootView;
             this.btnCancel = rootView.findViewById(R.id.btnCancel);
             this.btnConfirm = rootView.findViewById(R.id.btnConfirm);
+            this.btnPreview = rootView.findViewById(R.id.btnPreview);
             this.btnClickOrLong = rootView.findViewById(R.id.btnClickOrLong);
             this.tvTip = rootView.findViewById(R.id.tvTip);
             this.tvSectionRecord = rootView.findViewById(R.id.tvSectionRecord);

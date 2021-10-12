@@ -260,19 +260,10 @@ public class SoundRecordingFragment extends BaseFragment {
             }
 
             @Override
-            public void startProgress() {
-                moveRecordFile();
-            }
-
-            @Override
-            public void stopProgress() {
+            public void preview() {
 
             }
 
-            @Override
-            public void doneProgress() {
-
-            }
         });
     }
 

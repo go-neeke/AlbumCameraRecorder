@@ -147,7 +147,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/bottomToolbar"
-        android:background="@color/main_color"
+        android:background="#D71E1E"
         android:scrollbars="none"
         android:visibility="gone"
         tools:ignore="HardcodedText">

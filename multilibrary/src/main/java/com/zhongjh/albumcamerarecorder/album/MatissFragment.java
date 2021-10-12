@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.TrimVideo;
 import com.zhongjh.albumcamerarecorder.MainActivity;
 import com.zhongjh.albumcamerarecorder.R;
@@ -82,7 +83,6 @@ import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_RESULT_SE
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_RESULT_SELECTION_PATH;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.REQUEST_CODE_PREVIEW_CAMRRA;
 
-import net.vrgsoft.videcrop.VideoCropActivity;
 
 /**
  * 相册
@@ -152,6 +152,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                             ArrayList<Uri> selectedUris = new ArrayList<>();
                             selectedUris.add(uri);
                             resultIntent.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
+                            resultIntent.putExtra(EXTRA_MULTIMEDIA_TYPES, getMultimediaType(selectedUris));
+                            resultIntent.putExtra(EXTRA_MULTIMEDIA_CHOICE, true);
                             mActivity.setResult(RESULT_OK, resultIntent);
                             mActivity.finish();
                         } else {
@@ -285,9 +287,10 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                     mActivity.overridePendingTransition(R.anim.activity_open, 0);
                 }
             } else {
-                String outputPath = "/storage/emulated/0/YDXJ08599.mp4";
-                getActivity().startActivityForResult(VideoCropActivity.createIntent(getContext(), mSelectedCollection.asListOfString().get(0), outputPath), 20012);
-                getActivity().overridePendingTransition(R.anim.activity_open, 0);
+                TrimVideo.activity(String.valueOf(mSelectedCollection.asListOfString().get(0)))
+                        .setCompressOption(new CompressOption()) //empty constructor for default compress option
+                        .setHideSeekBar(true)
+                        .start(this, startForResult);
             }
         });
 
@@ -620,15 +623,10 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
     @Override
     public void onMediaClick(Album album, MultiMedia item, int adapterPosition) {
         if (item.isVideo()) {
-//            String outputPath = "/storage/emulated/0/YDXJ08599.mp4";
-//            getActivity().startActivityForResult(VideoCropActivity.createIntent(getContext(), PathUtils.getPath(mContext, item.getMediaUri()), outputPath), 20012);
-//            getActivity().overridePendingTransition(R.anim.activity_open, 0);
             TrimVideo.activity(String.valueOf(item.getMediaUri()))
-//        .setCompressOption(new CompressOption()) //empty constructor for default compress option
+                    .setCompressOption(new CompressOption()) //empty constructor for default compress option
                     .setHideSeekBar(true)
                     .start(this, startForResult);
-
-
         } else {
             Intent intent = new Intent(mActivity, AlbumPreviewActivity.class);
             intent.putExtra(AlbumPreviewActivity.EXTRA_ALBUM, album);
