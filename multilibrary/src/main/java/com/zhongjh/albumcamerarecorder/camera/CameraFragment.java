@@ -83,8 +83,6 @@ public class CameraFragment extends BaseFragment {
      */
     private boolean mIsCommit = false;
 
-    private MediaStoreCompat mVideoMediaStoreCompat;
-
 
     private final ActivityResultLauncher<Intent> startForResult =
             registerForActivityResult(
@@ -143,9 +141,7 @@ public class CameraFragment extends BaseFragment {
             public void onAudioPermissionError() {
             }
         });
-
-        mVideoMediaStoreCompat = new MediaStoreCompat(mActivity);
-
+        
         initCameraLayoutCloseListener();
         initCameraLayoutPhotoVideoListener();
         initCameraLayoutOperateCameraListener();
@@ -161,43 +157,11 @@ public class CameraFragment extends BaseFragment {
                 .start(mActivity, startForResult);
     }
 
-    public void confirmVideo(String path) {
-        GlobalSpec mGlobalSpec = GlobalSpec.getInstance();
-        mVideoMediaStoreCompat.setSaveStrategy(mGlobalSpec.videoStrategy == null ? mGlobalSpec.saveStrategy : mGlobalSpec.videoStrategy);
-        // 开始迁移文件，将 缓存文件 拷贝到 配置目录
-        ThreadUtils.executeByIo(new ThreadUtils.BaseSimpleBaseTask<Void>() {
-            @Override
-            public Void doInBackground() {
-                // 获取文件名称
-                String newFileName = path.substring(path.lastIndexOf(File.separator));
-                File newFile = mVideoMediaStoreCompat.createFile(newFileName, 1, false);
-                FileUtil.copy(new File(path), newFile, null, (ioProgress, file) -> {
-                    if (ioProgress >= 1) {
-                        ThreadUtils.runOnUiThread(() -> {
-                            confirm(newFile);
-                        });
-                    }
-                });
-                return null;
-            }
-
-            @Override
-            public void onSuccess(Void result) {
-
-            }
-        });
-    }
-
-    /**
-     * 确定该视频
-     */
-    private void confirm(File newFile) {
-        // 加入视频到android系统库里面
-        Uri mediaUri = BitmapUtils.displayToGallery(mActivity.getApplicationContext(), newFile, TYPE_VIDEO, -1, mVideoMediaStoreCompat.getSaveStrategy().directory, mVideoMediaStoreCompat);
+    public void confirmVideo(File newFile) {
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add(newFile.getPath());
         ArrayList<Uri> arrayListUri = new ArrayList<>();
-        arrayListUri.add(mediaUri);
+        arrayListUri.add(Uri.fromFile(newFile));
         // 获取视频路径
         Intent result = new Intent();
         result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);

@@ -85,6 +85,7 @@ import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.BUTTON_STATE_BOTH;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.BUTTON_STATE_ONLY_CLICK;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.BUTTON_STATE_ONLY_LONG_CLICK;
+import static com.zhongjh.albumcamerarecorder.camera.common.Constants.STATE_VIDEO;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_DEFAULT;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_PICTURE;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_SHORT;
@@ -92,6 +93,7 @@ import static com.zhongjh.albumcamerarecorder.camera.common.Constants.TYPE_VIDEO
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_CHOICE;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_TYPES;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_RESULT_SELECTION;
+import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_RESULT_SELECTION_PATH;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.REQUEST_CODE_PREVIEW_CAMRRA;
 
 /**
@@ -522,7 +524,6 @@ public class CameraLayout extends RelativeLayout {
      */
     private void initImgSwitchListener() {
         mViewHolder.imgSwitch.setOnClickListener(v -> mViewHolder.cameraView.toggleFacing());
-        mViewHolder.imgSwitch.setOnClickListener(v -> mViewHolder.cameraView.toggleFacing());
     }
 
     /**
@@ -540,6 +541,10 @@ public class CameraLayout extends RelativeLayout {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public void onClick() {
+                if (mState == STATE_VIDEO) {
+                    return;
+                }
+
                 // 开启才能执行别的事件
                 if (mViewHolder.cameraView.isOpened()) {
                     // 判断数量
@@ -633,16 +638,21 @@ public class CameraLayout extends RelativeLayout {
 
             @Override
             public void confirm() {
-                mNewSectionVideoPath = mVideoMediaStoreCompat.createFile(1, true).getPath();
-                mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
-                        mContext.getCacheDir().getPath() + File.separator + "cam.txt");
-                fragment.confirmVideo(mNewSectionVideoPath);
+                if (mState == STATE_VIDEO) {
+                    File newSectionVideo = mVideoMediaStoreCompat.createFile(1, false);
+                    mNewSectionVideoPath = newSectionVideo.getPath();
+                    mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
+                            mContext.getCacheDir().getPath() + File.separator + "cam.txt");
+                    fragment.confirmVideo(newSectionVideo);
+                } else {
+                    confirmState(TYPE_PICTURE);
+                }
             }
 
             @Override
             public void preview() {
                 File newSectionVideo = mVideoMediaStoreCompat.createFile(1, true);
-                mNewSectionVideoPath = mVideoMediaStoreCompat.createFile(1, true).getPath();
+                mNewSectionVideoPath = newSectionVideo.getPath();
                 mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
                         mContext.getCacheDir().getPath() + File.separator + "cam.txt");
                 fragment.goVideoTrim(Uri.fromFile(newSectionVideo));
