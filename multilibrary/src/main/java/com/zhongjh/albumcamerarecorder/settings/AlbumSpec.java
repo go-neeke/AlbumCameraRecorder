@@ -40,10 +40,10 @@ public class AlbumSpec {
     private void reset() {
         mimeTypeSet = null;
         mediaTypeExclusive = true;
-        showSingleMediaType = false;
+        showSingleMediaType = true;
         countable = false;
         baseFilters = null;
-        spanCount = 3;
+        spanCount = 4;
         thumbnailScale = 0.5f;
         originalable = false;
         originalMaxSize = Integer.MAX_VALUE;

@@ -232,7 +232,7 @@ public class MaskProgressView extends androidx.appcompat.widget.AppCompatImageVi
             // 如果当前模式是 当前的尺寸就是当前View应该取的尺寸
             size = ints[1];
         } else {
-            size = DisplayMetricsUtils.dip2px(70);
+            size = DisplayMetricsUtils.dip2px(40);
             if (ints[0] == MeasureSpec.AT_MOST) {
                 // 如果当前模式是 当前尺寸是当前View能取的最大尺寸,就取最小的那个，70或者是最大尺寸
                 size = Math.min(size, ints[1]);

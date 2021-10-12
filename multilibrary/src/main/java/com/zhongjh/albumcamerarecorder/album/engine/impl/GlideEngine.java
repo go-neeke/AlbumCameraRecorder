@@ -27,6 +27,7 @@ import com.zhongjh.albumcamerarecorder.album.engine.ImageEngine;
 
 /**
  * {@link ImageEngine} implementation using Glide.
+ *
  * @author zhongjh
  */
 
@@ -36,7 +37,6 @@ public class GlideEngine implements ImageEngine {
     public void loadThumbnail(Context context, int resize, Drawable placeholder, ImageView imageView, Uri uri) {
         Glide.with(context)
                 .load(uri)
-                .asBitmap()  // some .jpeg files are actually gif
                 .placeholder(placeholder)
                 .override(resize, resize)
                 .centerCrop()
@@ -48,7 +48,6 @@ public class GlideEngine implements ImageEngine {
                                  Uri uri) {
         Glide.with(context)
                 .load(uri)
-                .asBitmap()
                 .placeholder(placeholder)
                 .override(resize, resize)
                 .centerCrop()
@@ -84,7 +83,7 @@ public class GlideEngine implements ImageEngine {
     }
 
     @Override
-    public void loadDrawableImage(Context context, ImageView imageView,Integer resourceId) {
+    public void loadDrawableImage(Context context, ImageView imageView, Integer resourceId) {
         Glide.with(context)
                 .load(resourceId)
                 .priority(Priority.HIGH)
@@ -96,7 +95,6 @@ public class GlideEngine implements ImageEngine {
     public void loadGifImage(Context context, int resizeX, int resizeY, ImageView imageView, Uri uri) {
         Glide.with(context)
                 .load(uri)
-                .asGif()
                 .override(resizeX, resizeY)
                 .priority(Priority.HIGH)
                 .into(imageView);

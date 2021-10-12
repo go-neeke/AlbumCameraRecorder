@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 
 /**
  * http://stackoverflow.com/a/27271131/4739220
+ *
  * @author zhongjh
  */
 public class PathUtils {
@@ -144,4 +145,5 @@ public class PathUtils {
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
+
 }

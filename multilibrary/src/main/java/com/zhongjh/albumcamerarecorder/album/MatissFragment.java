@@ -1,6 +1,7 @@
 package com.zhongjh.albumcamerarecorder.album;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -20,11 +21,13 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.gowtham.library.utils.TrimVideo;
 import com.zhongjh.albumcamerarecorder.MainActivity;
 import com.zhongjh.albumcamerarecorder.R;
 import com.zhongjh.albumcamerarecorder.album.entity.Album;
@@ -35,6 +38,10 @@ import com.zhongjh.albumcamerarecorder.album.ui.mediaselection.adapter.AlbumMedi
 import com.zhongjh.albumcamerarecorder.album.utils.PhotoMetadataUtils;
 import com.zhongjh.albumcamerarecorder.album.widget.AlbumsSpinner;
 import com.zhongjh.albumcamerarecorder.album.widget.CheckRadioView;
+import com.zhongjh.albumcamerarecorder.camera.CameraLayout;
+import com.zhongjh.albumcamerarecorder.camera.common.Constants;
+import com.zhongjh.albumcamerarecorder.camera.entity.BitmapData;
+import com.zhongjh.albumcamerarecorder.camera.util.FileUtil;
 import com.zhongjh.albumcamerarecorder.preview.AlbumPreviewActivity;
 import com.zhongjh.albumcamerarecorder.preview.BasePreviewActivity;
 import com.zhongjh.albumcamerarecorder.preview.SelectedPreviewActivity;
@@ -43,25 +50,39 @@ import com.zhongjh.albumcamerarecorder.settings.GlobalSpec;
 import com.zhongjh.albumcamerarecorder.utils.PathUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import gaode.zhongjh.com.common.entity.MultiMedia;
 import gaode.zhongjh.com.common.enums.MimeType;
 import gaode.zhongjh.com.common.enums.MultimediaTypes;
+import gaode.zhongjh.com.common.utils.BasePhotoMetadataUtils;
 import gaode.zhongjh.com.common.utils.ColorFilterUtil;
 import gaode.zhongjh.com.common.utils.DisplayMetricsUtils;
 import gaode.zhongjh.com.common.utils.StatusBarUtils;
 import gaode.zhongjh.com.common.widget.IncapableDialog;
 
 import static android.app.Activity.RESULT_OK;
+import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection.COLLECTION_IMAGE;
+import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection.STATE_COLLECTION_TYPE;
+import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection.STATE_SELECTION;
+import static com.zhongjh.albumcamerarecorder.camera.common.Constants.BUTTON_STATE_BOTH;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_CHOICE;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_MULTIMEDIA_TYPES;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_RESULT_SELECTION;
 import static com.zhongjh.albumcamerarecorder.constants.Constant.EXTRA_RESULT_SELECTION_PATH;
+import static com.zhongjh.albumcamerarecorder.constants.Constant.REQUEST_CODE_PREVIEW_CAMRRA;
+
+import net.vrgsoft.videcrop.VideoCropActivity;
 
 /**
  * 相册
@@ -116,6 +137,29 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
     private boolean mIsRefresh;
 
     private ViewHolder mViewHolder;
+
+    public LinkedHashMap<Integer, BitmapData> mCaptureBitmaps = new LinkedHashMap<>();
+
+    private final ActivityResultLauncher<Intent> startForResult =
+            registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK &&
+                                result.getData() != null) {
+                            Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
+                            Log.d("A.lee", "Trimmed path:: " + uri);
+                            Intent resultIntent = new Intent();
+                            ArrayList<Uri> selectedUris = new ArrayList<>();
+                            selectedUris.add(uri);
+                            resultIntent.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
+                            mActivity.setResult(RESULT_OK, resultIntent);
+                            mActivity.finish();
+                        } else {
+
+                        }
+//                            LogMessage.v("videoTrimResultLauncher data is null");
+                    });
+
 
     /**
      * @param marginBottom 底部间距
@@ -231,13 +275,19 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 
         // 预览事件
         mViewHolder.buttonPreview.setOnClickListener(view -> {
-            Intent intent = new Intent(mActivity, SelectedPreviewActivity.class);
-            intent.putExtra(BasePreviewActivity.IS_ALBUM_URI, true);
-            intent.putExtra(BasePreviewActivity.EXTRA_DEFAULT_BUNDLE, mSelectedCollection.getDataWithBundle());
-            intent.putExtra(BasePreviewActivity.EXTRA_RESULT_ORIGINAL_ENABLE, mOriginalEnable);
-            startActivityForResult(intent, mGlobalSpec.requestCode);
-            if (mGlobalSpec.isCutscenes) {
-                mActivity.overridePendingTransition(R.anim.activity_open, 0);
+            if (mSelectedCollection.getCollectionType() == COLLECTION_IMAGE) {
+                Intent intent = new Intent(mActivity, SelectedPreviewActivity.class);
+                intent.putExtra(BasePreviewActivity.IS_ALBUM_URI, true);
+                intent.putExtra(BasePreviewActivity.EXTRA_DEFAULT_BUNDLE, mSelectedCollection.getDataWithBundle());
+                intent.putExtra(BasePreviewActivity.EXTRA_RESULT_ORIGINAL_ENABLE, mOriginalEnable);
+                startActivityForResult(intent, mGlobalSpec.requestCode);
+                if (mGlobalSpec.isCutscenes) {
+                    mActivity.overridePendingTransition(R.anim.activity_open, 0);
+                }
+            } else {
+                String outputPath = "/storage/emulated/0/YDXJ08599.mp4";
+                getActivity().startActivityForResult(VideoCropActivity.createIntent(getContext(), mSelectedCollection.asListOfString().get(0), outputPath), 20012);
+                getActivity().overridePendingTransition(R.anim.activity_open, 0);
             }
         });
 
@@ -399,6 +449,16 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                 }
 
             }
+        } else if (requestCode == 20012) {
+            String cropVideoPath = data.getStringExtra("VIDEO_CROP_OUTPUT_PATH");
+            if (cropVideoPath.isEmpty()) {
+                Intent result = new Intent();
+                ArrayList<Uri> selectedUris = new ArrayList<>();
+                selectedUris.add(Uri.parse(cropVideoPath));
+                result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
+                mActivity.setResult(RESULT_OK, result);
+                mActivity.finish();
+            }
         }
     }
 
@@ -411,16 +471,19 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         if (selectedCount == 0) {
             // 如果没有数据，则设置不可点击
             mViewHolder.buttonPreview.setEnabled(false);
+            mViewHolder.buttonPreview.setText(getString(R.string.z_multi_library_button_preview_default));
             mViewHolder.buttonApply.setEnabled(false);
             mViewHolder.buttonApply.setText(getString(R.string.z_multi_library_button_sure_default));
         } else if (selectedCount == 1 && mAlbumSpec.singleSelectionModeEnabled()) {
             // 不显示选择的数字
             mViewHolder.buttonPreview.setEnabled(true);
+            mViewHolder.buttonPreview.setText(R.string.z_multi_library_button_preview_default);
             mViewHolder.buttonApply.setText(R.string.z_multi_library_button_sure_default);
             mViewHolder.buttonApply.setEnabled(true);
         } else {
             // 显示选择的数字
             mViewHolder.buttonPreview.setEnabled(true);
+            mViewHolder.buttonPreview.setText(getString(R.string.z_multi_library_button_preview, selectedCount));
             mViewHolder.buttonApply.setEnabled(true);
             mViewHolder.buttonApply.setText(getString(R.string.z_multi_library_button_sure, selectedCount));
         }
@@ -556,15 +619,27 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 
     @Override
     public void onMediaClick(Album album, MultiMedia item, int adapterPosition) {
-        Intent intent = new Intent(mActivity, AlbumPreviewActivity.class);
-        intent.putExtra(AlbumPreviewActivity.EXTRA_ALBUM, album);
-        intent.putExtra(AlbumPreviewActivity.EXTRA_ITEM, item);
-        intent.putExtra(BasePreviewActivity.EXTRA_DEFAULT_BUNDLE, mSelectedCollection.getDataWithBundle());
-        intent.putExtra(BasePreviewActivity.EXTRA_RESULT_ORIGINAL_ENABLE, mOriginalEnable);
-        intent.putExtra(BasePreviewActivity.IS_ALBUM_URI, true);
-        startActivityForResult(intent, mGlobalSpec.requestCode);
-        if (mGlobalSpec.isCutscenes) {
-            mActivity.overridePendingTransition(R.anim.activity_open, 0);
+        if (item.isVideo()) {
+//            String outputPath = "/storage/emulated/0/YDXJ08599.mp4";
+//            getActivity().startActivityForResult(VideoCropActivity.createIntent(getContext(), PathUtils.getPath(mContext, item.getMediaUri()), outputPath), 20012);
+//            getActivity().overridePendingTransition(R.anim.activity_open, 0);
+            TrimVideo.activity(String.valueOf(item.getMediaUri()))
+//        .setCompressOption(new CompressOption()) //empty constructor for default compress option
+                    .setHideSeekBar(true)
+                    .start(this, startForResult);
+
+
+        } else {
+            Intent intent = new Intent(mActivity, AlbumPreviewActivity.class);
+            intent.putExtra(AlbumPreviewActivity.EXTRA_ALBUM, album);
+            intent.putExtra(AlbumPreviewActivity.EXTRA_ITEM, item);
+            intent.putExtra(BasePreviewActivity.EXTRA_DEFAULT_BUNDLE, mSelectedCollection.getDataWithBundle());
+            intent.putExtra(BasePreviewActivity.EXTRA_RESULT_ORIGINAL_ENABLE, mOriginalEnable);
+            intent.putExtra(BasePreviewActivity.IS_ALBUM_URI, true);
+            startActivityForResult(intent, mGlobalSpec.requestCode);
+            if (mGlobalSpec.isCutscenes) {
+                mActivity.overridePendingTransition(R.anim.activity_open, 0);
+            }
         }
     }
 
@@ -572,6 +647,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
     public SelectedItemCollection provideSelectedItemCollection() {
         return mSelectedCollection;
     }
+
 
     /**
      * 显示本身的底部
@@ -592,6 +668,33 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 //            // 隐藏母窗体的table
 //            ((MainActivity) mActivity).showHideTableLayout(true);
 //        }
+
+        if (count > 0) {
+            mViewHolder.hsvPhoto.setVisibility(View.VISIBLE);
+            mViewHolder.llPhoto.removeAllViews();
+
+            try {
+                for (int position = 0; position < mSelectedCollection.count(); position++) {
+                    Uri currentUri = mSelectedCollection.asListOfUri().get(position);
+                    // 添加view
+                    CameraLayout.ViewHolderImageView viewHolderImageView = new CameraLayout.ViewHolderImageView(View.inflate(getContext(), R.layout.item_horizontal_image_zjh, null));
+                    mGlobalSpec.imageEngine.loadUriImage(getContext(), viewHolderImageView.imgPhoto, currentUri);
+                    // 删除事件
+                    int finalPosition = position;
+                    viewHolderImageView.imgCancel.setOnClickListener(v -> removeImage(finalPosition, viewHolderImageView.rootView));
+                    mViewHolder.llPhoto.addView(viewHolderImageView.rootView);
+                }
+            } catch (Exception e) {
+                Log.d("A.lee", "error" + e.toString());
+            }
+        }
+    }
+
+    private void removeImage(int position, View rootView) {
+        mViewHolder.llPhoto.removeView(rootView);
+        mSelectedCollection.remove(mSelectedCollection.asList().get(position));
+        mFragmentLast.refreshSelection();
+        mFragmentLast.refreshMediaGrid();
     }
 
     public static class ViewHolder {
@@ -609,6 +712,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         public FrameLayout emptyView;
         public RelativeLayout root;
         public ImageView imgClose;
+        public HorizontalScrollView hsvPhoto;
+        LinearLayout llPhoto;
 
         public ViewHolder(View rootView) {
             this.rootView = rootView;
@@ -625,6 +730,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
             this.emptyView = rootView.findViewById(R.id.emptyView);
             this.root = rootView.findViewById(R.id.root);
             this.imgClose = rootView.findViewById(R.id.imgClose);
+            this.hsvPhoto = rootView.findViewById(R.id.hsvPhoto);
+            this.llPhoto = rootView.findViewById(R.id.llPhoto);
         }
 
     }

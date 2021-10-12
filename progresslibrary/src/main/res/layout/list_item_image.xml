@@ -12,7 +12,8 @@
         android:layout_height="match_parent"
         android:layout_margin="8dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/selector_image_add" />
+        android:src="@drawable/selector_image_add"
+        android:gravity="center"/>
 
     <ImageView
         android:id="@+id/imgPlay"

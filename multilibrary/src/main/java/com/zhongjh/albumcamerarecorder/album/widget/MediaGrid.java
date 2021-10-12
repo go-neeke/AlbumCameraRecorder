@@ -80,16 +80,7 @@ public class MediaGrid extends SquareFrameLayout implements View.OnClickListener
                 mListener.onThumbnailClicked(mThumbnail, mMedia, mPreBindInfo.mViewHolder);
             } else if (view == mCheckView) {
                 // 勾选的点击事件
-                mListener.onCheckViewClicked(mCheckView, mMedia, mPreBindInfo.mViewHolder);
-                Log.d("A.lee", "mCheckView.isChecked() = " + mCheckView.isChecked());
-                if (mCheckView.isChecked()) {
-                    mThumbnail.setBackground(null);
-
-                } else {
-                    Drawable highlight = getResources().getDrawable(R.drawable.thumnail_selector);
-                    mThumbnail.setBackground(highlight);
-
-                }
+                mListener.onCheckViewClicked(mThumbnail, mCheckView, mMedia, mPreBindInfo.mViewHolder);
             }
         }
     }
@@ -152,6 +143,15 @@ public class MediaGrid extends SquareFrameLayout implements View.OnClickListener
         mCheckView.setChecked(checked);
     }
 
+    public void setThumbnailBackground(boolean checked) {
+        if (checked) {
+            Drawable highlight = getResources().getDrawable(R.drawable.thumnail_selector);
+            mThumbnail.setBackground(highlight);
+        } else {
+            mThumbnail.setBackground(null);
+        }
+    }
+
 
     /**
      * 设置图片或者gif图片
@@ -200,7 +200,7 @@ public class MediaGrid extends SquareFrameLayout implements View.OnClickListener
          * @param item      数据
          * @param holder    控件
          */
-        void onCheckViewClicked(CheckView checkView, MultiMedia item, RecyclerView.ViewHolder holder);
+        void onCheckViewClicked(ImageView thumbnail,CheckView checkView, MultiMedia item, RecyclerView.ViewHolder holder);
 
     }
 

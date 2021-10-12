@@ -234,8 +234,8 @@ public class AutoLineFeedLayout extends ViewGroup {
     @SuppressLint("InflateParams")
     public void init(int widthMeasureSpec) {
         if (mWidth == 0) {
-            mWidth = DisplayMetricsUtils.dip2px(400);
-            mItemHeight = DisplayMetricsUtils.dip2px(80);
+            mWidth = MeasureSpec.getSize(widthMeasureSpec) + DisplayMetricsUtils.dip2px(200);
+//            mItemHeight = DisplayMetricsUtils.dip2px(80);
 
             addView(viewHolderAdd.itemView);
             isAddAddView = true;
@@ -461,14 +461,18 @@ public class AutoLineFeedLayout extends ViewGroup {
      * @param itemView view
      */
     private void initWidth(View itemView) {
-        Log.d(TAG + " Test", "initWidth");
         // 设置动态宽度，先获取间隔宽度
         LayoutParams layoutParams = itemView.getLayoutParams();
         int sumColumnSpace = (columnNumber - 1) * columnSpace;
         // view的剩余宽度
         int viewWidth = (mWidth - sumColumnSpace) / columnNumber;
+
+        Log.d(TAG + " Test", "initWidth" + viewWidth);
+
+
         layoutParams.width = viewWidth;
-        layoutParams.height = mItemHeight;
+        layoutParams.height = DisplayMetricsUtils.dip2px(100);
+        mItemHeight = layoutParams.height;
         itemView.setLayoutParams(layoutParams);
     }
 

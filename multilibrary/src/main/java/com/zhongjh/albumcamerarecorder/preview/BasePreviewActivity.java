@@ -233,8 +233,6 @@ public class BasePreviewActivity extends AppCompatActivity implements View.OnCli
      * 所有事件
      */
     private void initListener() {
-        // 编辑
-        mViewHolder.tvEdit.setOnClickListener(this);
         // 返回
         mViewHolder.iBtnBack.setOnClickListener(this);
         // 确认
@@ -327,23 +325,6 @@ public class BasePreviewActivity extends AppCompatActivity implements View.OnCli
         } else if (v.getId() == R.id.buttonApply) {
             sendBackResult(true);
             finish();
-        } else if (v.getId() == R.id.tvEdit) {
-            MultiMedia item = mAdapter.getMediaItem(mViewHolder.pager.getCurrentItem());
-
-            File file;
-
-            file = mPictureMediaStoreCompat.createFile(0, true);
-            mEditImageFile = file;
-
-            Intent intent = new Intent();
-            intent.setClass(BasePreviewActivity.this, ImageEditActivity.class);
-            if (item.getMediaUri() != null) {
-                intent.putExtra(ImageEditActivity.EXTRA_IMAGE_URI, item.getMediaUri());
-            } else {
-                intent.putExtra(ImageEditActivity.EXTRA_IMAGE_URI, item.getUri());
-            }
-            intent.putExtra(ImageEditActivity.EXTRA_IMAGE_SAVE_PATH, mEditImageFile.getAbsolutePath());
-            startActivityForResult(intent, REQ_IMAGE_EDIT);
         }
     }
 
@@ -497,12 +478,6 @@ public class BasePreviewActivity extends AppCompatActivity implements View.OnCli
         } else if (mAlbumSpec.originalable) {
             mViewHolder.originalLayout.setVisibility(View.VISIBLE);
         }
-
-        if (item.isImage() && mGlobalSpec.isImageEdit) {
-            mViewHolder.tvEdit.setVisibility(View.VISIBLE);
-        } else {
-            mViewHolder.tvEdit.setVisibility(View.GONE);
-        }
     }
 
     /**
@@ -536,7 +511,6 @@ public class BasePreviewActivity extends AppCompatActivity implements View.OnCli
         public Activity activity;
         public PreviewViewPager pager;
         ImageButton iBtnBack;
-        TextView tvEdit;
         public CheckRadioView original;
         public LinearLayout originalLayout;
         public TextView size;
@@ -548,7 +522,6 @@ public class BasePreviewActivity extends AppCompatActivity implements View.OnCli
             this.activity = activity;
             this.pager = activity.findViewById(R.id.pager);
             this.iBtnBack = activity.findViewById(R.id.ibtnBack);
-            this.tvEdit = activity.findViewById(R.id.tvEdit);
             this.original = activity.findViewById(R.id.original);
             this.originalLayout = activity.findViewById(R.id.originalLayout);
             this.size = activity.findViewById(R.id.size);

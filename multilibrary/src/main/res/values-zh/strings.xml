@@ -28,7 +28,8 @@
 
     <string name="z_multi_library_album_name_all">全部</string>
 
-    <string name="z_multi_library_button_preview">预览</string>
+    <string name="z_multi_library_button_preview_default">预览</string>
+    <string name="z_multi_library_button_preview">预览(%1$d)</string>
     <string name="z_multi_library_button_apply_default">使用</string>
     <string name="z_multi_library_button_apply">使用(%1$d)</string>
     <string name="z_multi_library_button_back">返回</string>

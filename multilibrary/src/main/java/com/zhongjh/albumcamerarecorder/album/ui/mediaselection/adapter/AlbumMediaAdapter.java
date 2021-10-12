@@ -19,9 +19,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +32,7 @@ import android.widget.ImageView;
 
 import com.zhongjh.albumcamerarecorder.R;
 import com.zhongjh.albumcamerarecorder.album.base.BaseRecyclerViewCursorAdapter;
+
 import gaode.zhongjh.com.common.entity.IncapableCause;
 import gaode.zhongjh.com.common.entity.MultiMedia;
 
@@ -40,6 +44,7 @@ import com.zhongjh.albumcamerarecorder.settings.AlbumSpec;
 
 /**
  * 相册适配器
+ *
  * @author zhongjh
  */
 public class AlbumMediaAdapter extends
@@ -120,20 +125,26 @@ public class AlbumMediaAdapter extends
         } else {
             // 不显示字的情况
             boolean selected = mSelectedCollection.isSelected(item);
+
+            Log.d("A.lee", "selected" + selected);
+
             // 如果被选中了，就设置选择
             if (selected) {
                 mediaGrid.setCheckEnabled(true);
                 mediaGrid.setChecked(true);
+                mediaGrid.setThumbnailBackground(true);
             } else {
                 // 判断当前数量 和 当前选择最大数量比较 是否相等，相等就设置为false，否则true
                 if (mSelectedCollection.maxSelectableReached()) {
                     // 设置为false
                     mediaGrid.setCheckEnabled(false);
                     mediaGrid.setChecked(false);
+                    mediaGrid.setThumbnailBackground(false);
                 } else {
                     // 设置为true
                     mediaGrid.setCheckEnabled(true);
                     mediaGrid.setChecked(false);
+                    mediaGrid.setThumbnailBackground(false);
                 }
             }
         }
@@ -149,7 +160,7 @@ public class AlbumMediaAdapter extends
 
 
     @Override
-    public void onCheckViewClicked(CheckView checkView, MultiMedia item, RecyclerView.ViewHolder holder) {
+    public void onCheckViewClicked(ImageView thumbnail, CheckView checkView, MultiMedia item, RecyclerView.ViewHolder holder) {
         // 是否多选模式,显示数字
         if (mAlbumSpec.countable) {
             // 获取当前选择的第几个
@@ -173,12 +184,14 @@ public class AlbumMediaAdapter extends
             if (mSelectedCollection.isSelected(item)) {
                 // 如果当前已经被选中，再次选择就是取消了
                 mSelectedCollection.remove(item);
+                thumbnail.setBackground(null);
                 // 刷新数据源
                 notifyCheckStateChanged();
             } else {
-
                 if (assertAddSelection(holder.itemView.getContext(), item)) {
                     mSelectedCollection.add(item);
+                    Drawable highlight = mRecyclerView.getResources().getDrawable(R.drawable.thumnail_selector);
+                    thumbnail.setBackground(highlight);
                     notifyCheckStateChanged();
                 }
             }
@@ -314,8 +327,9 @@ public class AlbumMediaAdapter extends
     public interface OnMediaClickListener {
         /**
          * 点击事件
-         * @param album 相册集合
-         * @param item 选项
+         *
+         * @param album           相册集合
+         * @param item            选项
          * @param adapterPosition 索引
          */
         void onMediaClick(Album album, MultiMedia item, int adapterPosition);

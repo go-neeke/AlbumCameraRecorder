@@ -27,7 +27,8 @@
 
     <string name="z_multi_library_album_name_all">all</string>
 
-    <string name="z_multi_library_button_preview">preview</string>
+    <string name="z_multi_library_button_preview_default">미리보기</string>
+    <string name="z_multi_library_button_preview">미리보기(%1$d)</string>
     <string name="z_multi_library_button_apply_default">use</string>
     <string name="z_multi_library_button_apply">use(%1$d)</string>
     <string name="z_multi_library_button_back">back</string>
@@ -40,18 +41,18 @@
 
     <string name="z_multi_library_error_over_count_default">You have reached the maximum number of choices</string>
     <string name="z_multi_library_error_over_count">You can select a maximum of %1$d file</string>
-    <string name="z_multi_library_error_over_count_video">You can select a maximum of %1$d video</string>
-    <string name="z_multi_library_error_over_count_image">You can select a maximum of %1$d picture</string>
+    <string name="z_multi_library_error_over_count_video">동영상은 최대 %1$d개까지 선택 가능합니다.</string>
+    <string name="z_multi_library_error_over_count_image">이미지는 최대 %1$d까지 선택 가능합니다.</string>
     <string name="z_multi_library_error_under_quality">Image quality is too low</string>
     <string name="z_multi_library_error_over_quality">Image quality too high</string>
     <string name="z_multi_library_error_file_type">Unsupported file type</string>
-    <string name="z_multi_library_error_type_conflict">You cannot select images and videos at the same time</string>
+    <string name="z_multi_library_error_type_conflict">이미지와 동영상을 동시에 선택할 수 없습니다.</string>
     <string name="z_multi_library_error_no_video_activity">There is no app that supports video preview</string>
     <string name="z_multi_library_error_over_original_size">"If the photo is larger than %1$d M and cannot be uploaded, the original image will be unchecked"</string>
     <string name="z_multi_library_error_over_original_count">"If %1$d photos larger than %2$d M\ncannot be uploaded, the original picture will be unchecked"</string>
     <string name="z_multi_library_button_original">The original image</string>
-    <string name="z_multi_library_button_sure_default">confirm</string>
-    <string name="z_multi_library_button_sure">confirm(%1$d)</string>
+    <string name="z_multi_library_button_sure_default">완료</string>
+    <string name="z_multi_library_button_sure">완료(%1$d)</string>
 
     <string name="z_multi_library_show_thumbnails">The thumbnail image displayed</string>
     <string name="z_multi_library_gif_label">GIF label</string>
@@ -74,7 +75,7 @@
     <string name="z_multi_library_delete_button">Delete button</string>
     <string name="z_multi_library_play_button">Play button</string>
     <string name="z_multi_library_choose_to_click_to_confirm_these">You can click to confirm these if you select them</string>
-    <string name="z_multi_library_confirm">confirm</string>
+    <string name="z_multi_library_confirm">완료</string>
 
 
     <!-- endregion -->

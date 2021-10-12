@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.zhongjh.albumcamerarecorder.R;
 import com.zhongjh.albumcamerarecorder.album.entity.SelectedCountMessage;
@@ -124,6 +125,10 @@ public class SelectedItemCollection {
         return bundle;
     }
 
+    public int getCollectionType() {
+        return mCollectionType;
+    }
+
     /**
      * 将资源对象添加到已选中集合
      *
@@ -146,18 +151,6 @@ public class SelectedItemCollection {
                 } else if (item.isVideo()) {
                     // 如果是视频，就设置视频类型
                     mCollectionType = COLLECTION_VIDEO;
-                }
-            } else if (mCollectionType == COLLECTION_IMAGE) {
-                // 如果当前是图片类型
-                if (item.isVideo()) {
-                    // 选择了视频，就设置混合模式
-                    mCollectionType = COLLECTION_MIXED;
-                }
-            } else if (mCollectionType == COLLECTION_VIDEO) {
-                // 如果当前是图片类型
-                if (item.isImage()) {
-                    // 选择了图片，就设置混合模式
-                    mCollectionType = COLLECTION_MIXED;
                 }
             }
         }
@@ -420,10 +413,17 @@ public class SelectedItemCollection {
      * while {@link AlbumSpec#mediaTypeExclusive} is set to false.
      */
     private boolean typeConflict(MultiMedia item) {
+        if (item.isImage()) {
+            return mCollectionType == COLLECTION_VIDEO;
+        } else if (item.isVideo()) {
+            return mCollectionType == COLLECTION_IMAGE;
+        }
+
+        return false;
         // 是否可以同时选择不同的资源类型 true表示不可以 false表示可以
-        return AlbumSpec.getInstance().mediaTypeExclusive
-                && ((item.isImage() && (mCollectionType == COLLECTION_VIDEO || mCollectionType == COLLECTION_MIXED))
-                || (item.isVideo() && (mCollectionType == COLLECTION_IMAGE || mCollectionType == COLLECTION_MIXED)));
+//        return AlbumSpec.getInstance().mediaTypeExclusive
+//                && ((item.isImage() && mCollectionType == COLLECTION_IMAGE)
+//                || (item.isVideo() && mCollectionType == COLLECTION_VIDEO));
     }
 
     /**
@@ -444,5 +444,4 @@ public class SelectedItemCollection {
     public int checkedNumOf(MultiMedia item) {
         return MultiMediaUtils.checkedNumOf(new ArrayList<>(mItems), item);
     }
-
 }

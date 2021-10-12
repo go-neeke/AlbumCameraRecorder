@@ -111,7 +111,7 @@ public class CheckView extends View {
         mStrokePaint.setStrokeWidth(STROKE_WIDTH * mDensity);
         TypedArray ta = getContext().getTheme().obtainStyledAttributes(new int[]{R.attr.item_checkCircle_borderColor});
         int defaultColor = ResourcesCompat.getColor(
-                getResources(), R.color.blue_item_checkCircle_borderColor,
+                getResources(), R.color.zaihan_item_checkCircle_borderColor,
                 getContext().getTheme());
         int color = ta.getColor(0, defaultColor);
         ta.recycle();
