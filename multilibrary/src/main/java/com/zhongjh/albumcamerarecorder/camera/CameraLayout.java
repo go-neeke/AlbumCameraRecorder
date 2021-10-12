@@ -1032,9 +1032,8 @@ public class CameraLayout extends RelativeLayout {
      */
     private void showPicture(Bitmap bitmap) {
         // 初始化数据并且存储进file
-        File file = mPictureMediaStoreCompat.saveFileByBitmap(bitmap, true);
-        Uri uri = mPictureMediaStoreCompat.getUri(file.getPath());
-        BitmapData bitmapData = new BitmapData(file.getPath(), uri);
+        File file = mPictureMediaStoreCompat.saveFileByBitmap(bitmap, false);
+        BitmapData bitmapData = new BitmapData(file.getPath(), Uri.fromFile(file));
         // 回收bitmap
         if (bitmap.isRecycled()) {
             // 回收并且置为null
@@ -1063,7 +1062,7 @@ public class CameraLayout extends RelativeLayout {
             // 判断是否要编辑
             if (mGlobalSpec.isImageEdit) {
                 mViewHolder.rlEdit.setVisibility(View.VISIBLE);
-                mViewHolder.rlEdit.setTag(uri);
+                mViewHolder.rlEdit.setTag(Uri.fromFile(file));
             } else {
                 mViewHolder.rlEdit.setVisibility(View.INVISIBLE);
             }
