@@ -90,7 +90,8 @@ public class CameraFragment extends BaseFragment {
                     result -> {
                         if (result.getResultCode() == Activity.RESULT_OK &&
                                 result.getData() != null) {
-                            Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
+                            File newFile = new File(TrimVideo.getTrimmedVideoPath(result.getData()));
+                            Uri uri = Uri.fromFile(newFile);
                             Log.d("A.lee", "Trimmed path:: " + uri);
                             Intent resultIntent = new Intent();
                             ArrayList<Uri> selectedUris = new ArrayList<>();

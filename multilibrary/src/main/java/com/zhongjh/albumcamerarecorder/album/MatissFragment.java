@@ -50,6 +50,7 @@ import com.zhongjh.albumcamerarecorder.settings.AlbumSpec;
 import com.zhongjh.albumcamerarecorder.settings.GlobalSpec;
 import com.zhongjh.albumcamerarecorder.utils.PathUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -146,13 +147,14 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                     result -> {
                         if (result.getResultCode() == Activity.RESULT_OK &&
                                 result.getData() != null) {
-                            Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
-                            Log.d("A.lee", "Trimmed path:: " + uri);
+                            File newFile = new File(TrimVideo.getTrimmedVideoPath(result.getData()));
+                            Uri uri = Uri.fromFile(newFile);
+                            Log.d("A.lee", "Trimmed path:: " + result.getData());
                             Intent resultIntent = new Intent();
                             ArrayList<Uri> selectedUris = new ArrayList<>();
                             selectedUris.add(uri);
                             resultIntent.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
-                            resultIntent.putExtra(EXTRA_MULTIMEDIA_TYPES, getMultimediaType(selectedUris));
+                            resultIntent.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
                             resultIntent.putExtra(EXTRA_MULTIMEDIA_CHOICE, true);
                             mActivity.setResult(RESULT_OK, resultIntent);
                             mActivity.finish();
