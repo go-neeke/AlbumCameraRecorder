@@ -971,41 +971,23 @@ public class CameraLayout extends RelativeLayout {
                 int progress = 100 / maxCount;
                 // 将 缓存文件 拷贝到 配置目录
                 for (String item : paths) {
-                    File oldFile = new File(item);
-                    // 压缩图片
-                    File compressionFile = null;
-                    if (mGlobalSpec.compressionInterface != null) {
-                        try {
-                            compressionFile = mGlobalSpec.compressionInterface.compressionFile(mContext, oldFile);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        compressionFile = oldFile;
-                    }
-                    // 获取文件名称
                     String newFileName = item.substring(item.lastIndexOf(File.separator));
                     File newFile = mPictureMediaStoreCompat.createFile(newFileName, 0, false);
                     Log.d(TAG, "newFile" + newFile.getAbsolutePath());
-                    FileUtil.copy(compressionFile, newFile, null, (ioProgress, file) -> {
-                        if (ioProgress >= 1) {
-                            newPaths.add(file.getAbsolutePath());
-                            Log.d(TAG, file.getAbsolutePath());
-                            ThreadUtils.runOnUiThread(() -> {
-                                // 是否拷贝完所有文件
-                                currentCount++;
-                                if (currentCount >= maxCount) {
-                                    currentCount = 0;
-                                    // 拷贝完毕，进行加入相册库等操作
-                                    ArrayList<Uri> uris = getUris(newPaths);
-                                    // 加入图片到android系统库里面
-                                    for (String path : newPaths) {
-                                        BitmapUtils.displayToGallery(getContext(), new File(path), TYPE_PICTURE, -1, mPictureMediaStoreCompat.getSaveStrategy().directory, mPictureMediaStoreCompat);
-                                    }
-                                    // 执行完成
-                                    mOperateCameraListener.captureSuccess(newPaths, uris);
-                                }
-                            });
+                    newPaths.add(newFile.getAbsolutePath());
+                    ThreadUtils.runOnUiThread(() -> {
+                        // 是否拷贝完所有文件
+                        currentCount++;
+                        if (currentCount >= maxCount) {
+                            currentCount = 0;
+                            // 拷贝完毕，进行加入相册库等操作
+                            ArrayList<Uri> uris = getUris(newPaths);
+                            // 加入图片到android系统库里面
+                            for (String path : newPaths) {
+                                BitmapUtils.displayToGallery(getContext(), new File(path), TYPE_PICTURE, -1, mPictureMediaStoreCompat.getSaveStrategy().directory, mPictureMediaStoreCompat);
+                            }
+                            // 执行完成
+                            mOperateCameraListener.captureSuccess(newPaths, uris);
                         }
                     });
                 }
