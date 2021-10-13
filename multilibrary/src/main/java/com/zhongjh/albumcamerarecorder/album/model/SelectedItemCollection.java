@@ -66,7 +66,7 @@ public class SelectedItemCollection {
     /**
      * 当前选择的所有类型，列表如果包含了图片和视频，就会变成混合类型
      */
-    private int mCollectionType = COLLECTION_UNDEFINED;
+    private int mCollectionType = AlbumSpec.getInstance().collectionType;
     /**
      * 当前选择的视频数量
      */
