@@ -141,7 +141,7 @@ public class CameraFragment extends BaseFragment {
             public void onAudioPermissionError() {
             }
         });
-        
+
         initCameraLayoutCloseListener();
         initCameraLayoutPhotoVideoListener();
         initCameraLayoutOperateCameraListener();
@@ -172,6 +172,23 @@ public class CameraFragment extends BaseFragment {
         mActivity.finish();
     }
 
+    public void confirmPicture(ArrayList<BitmapData> bitmapDatas) {
+        ArrayList<String> arrayList = new ArrayList<>();
+        ArrayList<Uri> arrayListUri = new ArrayList<>();
+
+        for (BitmapData data : bitmapDatas) {
+            arrayList.add(data.getPath());
+            arrayListUri.add(data.getUri());
+        }
+
+        Intent result = new Intent();
+        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
+        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
+        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.PICTURE);
+        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
+        mActivity.setResult(RESULT_OK, result);
+        mActivity.finish();
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
