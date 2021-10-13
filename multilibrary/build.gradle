@@ -49,6 +49,6 @@ dependencies {
     compileOnly project(':imageedit')
     compileOnly project(':videoedit')
 
-    implementation 'com.github.go-neeke:android-video-trimmer:1.7.0'
+    implementation 'com.github.go-neeke:android-video-trimmer:1.8.3'
 
 }
