@@ -94,8 +94,11 @@ public class CameraFragment extends BaseFragment {
                             Uri uri = Uri.fromFile(newFile);
                             Log.d("A.lee", "Trimmed path:: " + uri);
                             Intent resultIntent = new Intent();
+                            ArrayList<String> arrayList = new ArrayList<>();
+                            arrayList.add(newFile.getPath());
                             ArrayList<Uri> selectedUris = new ArrayList<>();
                             selectedUris.add(uri);
+                            resultIntent.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
                             resultIntent.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
                             resultIntent.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
                             resultIntent.putExtra(EXTRA_MULTIMEDIA_CHOICE, true);
