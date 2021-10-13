@@ -6,6 +6,7 @@ import com.zhongjh.albumcamerarecorder.R;
 import com.zhongjh.albumcamerarecorder.album.filter.BaseFilter;
 import com.zhongjh.albumcamerarecorder.album.listener.OnCheckedListener;
 import com.zhongjh.albumcamerarecorder.album.listener.OnSelectedListener;
+import com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection;
 import com.zhongjh.albumcamerarecorder.constants.ModuleTypes;
 import com.zhongjh.albumcamerarecorder.utils.SelectableUtils;
 
@@ -47,6 +48,7 @@ public class AlbumSpec {
         thumbnailScale = 0.5f;
         originalable = false;
         originalMaxSize = Integer.MAX_VALUE;
+        collectionType = SelectedItemCollection.COLLECTION_UNDEFINED;
     }
 
     /**
@@ -91,6 +93,8 @@ public class AlbumSpec {
     public int originalMaxSize;
     public OnCheckedListener onCheckedListener;
     public List<BaseFilter> baseFilters;
+
+    public int collectionType;
 
     // endregion
 

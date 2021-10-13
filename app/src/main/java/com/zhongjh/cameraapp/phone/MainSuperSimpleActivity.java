@@ -95,7 +95,7 @@ public class MainSuperSimpleActivity extends AppCompatActivity {
         // 拍摄有关设置
         CameraSetting cameraSetting = new CameraSetting();
         // 支持的类型：图片，视频
-        cameraSetting.mimeTypeSet(MimeType.ofAll());
+        cameraSetting.mimeTypeSet(MimeType.ofVideo());
         cameraSetting.useImgFlash(false);
         cameraSetting.isSectionRecord(true);
 
@@ -112,9 +112,9 @@ public class MainSuperSimpleActivity extends AppCompatActivity {
         mGlobalSetting = MultiMediaSetting.from(MainSuperSimpleActivity.this).choose(MimeType.ofAll());
 
         // 开启相册功能
-//        mGlobalSetting.albumSetting(albumSetting);
+        mGlobalSetting.albumSetting(albumSetting);
         // 开启拍摄功能
-        mGlobalSetting.cameraSetting(cameraSetting);
+//        mGlobalSetting.cameraSetting(cameraSetting);
         // 开启录音功能
 //        mGlobalSetting.recorderSetting(recorderSetting);
 

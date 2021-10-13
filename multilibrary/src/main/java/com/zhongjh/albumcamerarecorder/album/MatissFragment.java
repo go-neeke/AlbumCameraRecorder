@@ -452,16 +452,6 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                 }
 
             }
-        } else if (requestCode == 20012) {
-            String cropVideoPath = data.getStringExtra("VIDEO_CROP_OUTPUT_PATH");
-            if (cropVideoPath.isEmpty()) {
-                Intent result = new Intent();
-                ArrayList<Uri> selectedUris = new ArrayList<>();
-                selectedUris.add(Uri.parse(cropVideoPath));
-                result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
-                mActivity.setResult(RESULT_OK, result);
-                mActivity.finish();
-            }
         }
     }
 
@@ -678,8 +668,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                     CameraLayout.ViewHolderImageView viewHolderImageView = new CameraLayout.ViewHolderImageView(View.inflate(getContext(), R.layout.item_horizontal_image_zjh, null));
                     mGlobalSpec.imageEngine.loadUriImage(getContext(), viewHolderImageView.imgPhoto, currentUri);
                     // 删除事件
-                    int finalPosition = position;
-                    viewHolderImageView.imgCancel.setOnClickListener(v -> removeImage(finalPosition, viewHolderImageView.rootView));
+                    viewHolderImageView.imgCancel.setTag(position);
+                    viewHolderImageView.imgCancel.setOnClickListener(v -> removeImage((Integer) viewHolderImageView.imgCancel.getTag(), viewHolderImageView.rootView));
                     mViewHolder.llPhoto.addView(viewHolderImageView.rootView);
                 }
             } catch (Exception e) {
@@ -693,6 +683,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         mSelectedCollection.remove(mSelectedCollection.asList().get(position));
         mFragmentLast.refreshSelection();
         mFragmentLast.refreshMediaGrid();
+        updateBottomToolbar();
     }
 
     public static class ViewHolder {

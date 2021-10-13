@@ -99,7 +99,7 @@ public class SelectedItemCollection {
                 }
             }
 
-            mCollectionType = bundle.getInt(STATE_COLLECTION_TYPE, COLLECTION_UNDEFINED);
+            mCollectionType = AlbumSpec.getInstance().collectionType;
         }
     }
 

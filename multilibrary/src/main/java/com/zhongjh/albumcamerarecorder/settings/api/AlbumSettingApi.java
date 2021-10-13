@@ -16,6 +16,7 @@ import gaode.zhongjh.com.common.enums.MimeType;
 
 /**
  * 相册设置接口
+ *
  * @author zhongjh
  */
 public interface AlbumSettingApi {
@@ -28,6 +29,7 @@ public interface AlbumSettingApi {
     /**
      * 支持的类型：图片，视频
      * 这个优先于 {@link MultiMediaSetting#choose}
+     *
      * @param mimeTypes 类型
      * @return {@link AlbumSetting} this
      */
@@ -77,7 +79,7 @@ public interface AlbumSettingApi {
 
     /**
      * 设置媒体网格的固定跨度计数。不同屏幕方向相同。
-     *
+     * <p>
      * 设置时将忽略 {@link #gridExpectedSize(int)} 此项.
      *
      * @param spanCount 请求的范围计数
@@ -118,5 +120,13 @@ public interface AlbumSettingApi {
      * @return {@link AlbumSetting} this
      */
     AlbumSetting setOnCheckedListener(@Nullable OnCheckedListener listener);
+
+    /**
+     * 当用户选中或取消选中“原始”时，立即为回调设置侦听器。
+     *
+     * @param collectionType
+     * @return {@link AlbumSetting} this
+     */
+    AlbumSetting collectionType(int collectionType);
 
 }

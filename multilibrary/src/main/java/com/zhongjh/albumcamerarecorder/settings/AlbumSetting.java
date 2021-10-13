@@ -27,7 +27,6 @@ public class AlbumSetting implements AlbumSettingApi {
     private final static float SCALE_ONE = 1f;
 
     /**
-     *
      * @param mediaTypeExclusive 是否可以同时选择不同的资源类型 true表示不可以 false表示可以
      */
     public AlbumSetting(boolean mediaTypeExclusive) {
@@ -105,7 +104,8 @@ public class AlbumSetting implements AlbumSettingApi {
         return this;
     }
 
-    @NonNull  @Override
+    @NonNull
+    @Override
     public AlbumSetting setOnSelectedListener(@Nullable OnSelectedListener listener) {
         mAlbumSpec.onSelectedListener = listener;
         return this;
@@ -114,6 +114,12 @@ public class AlbumSetting implements AlbumSettingApi {
     @Override
     public AlbumSetting setOnCheckedListener(@Nullable OnCheckedListener listener) {
         mAlbumSpec.onCheckedListener = listener;
+        return this;
+    }
+
+    @Override
+    public AlbumSetting collectionType(int collectionType) {
+        mAlbumSpec.collectionType = collectionType;
         return this;
     }
 
