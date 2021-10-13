@@ -287,7 +287,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                     mActivity.overridePendingTransition(R.anim.activity_open, 0);
                 }
             } else {
-                TrimVideo.activity(String.valueOf(mSelectedCollection.asListOfString().get(0)))
+                TrimVideo.activity(String.valueOf(mSelectedCollection.asListOfUri().get(0)))
                         .setCompressOption(new CompressOption()) //empty constructor for default compress option
                         .setHideSeekBar(true)
                         .start(this, startForResult);
