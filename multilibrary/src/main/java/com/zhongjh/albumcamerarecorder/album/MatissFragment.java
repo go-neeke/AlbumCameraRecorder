@@ -283,7 +283,12 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 
         // 预览事件
         mViewHolder.buttonPreview.setOnClickListener(view -> {
-            if (mSelectedCollection.getCollectionType() == COLLECTION_IMAGE) {
+            if (mSelectedCollection.getCollectionType() == COLLECTION_VIDEO) {
+                TrimVideo.activity(String.valueOf(mSelectedCollection.asListOfUri().get(0)))
+                        .setCompressOption(new CompressOption()) //empty constructor for default compress option
+                        .setHideSeekBar(true)
+                        .start(this, startForResult);
+            } else {
                 Intent intent = new Intent(mActivity, SelectedPreviewActivity.class);
                 intent.putExtra(BasePreviewActivity.IS_ALBUM_URI, true);
                 intent.putExtra(BasePreviewActivity.EXTRA_DEFAULT_BUNDLE, mSelectedCollection.getDataWithBundle());
@@ -292,11 +297,6 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                 if (mGlobalSpec.isCutscenes) {
                     mActivity.overridePendingTransition(R.anim.activity_open, 0);
                 }
-            } else if (mSelectedCollection.getCollectionType() == COLLECTION_VIDEO) {
-                TrimVideo.activity(String.valueOf(mSelectedCollection.asListOfUri().get(0)))
-                        .setCompressOption(new CompressOption()) //empty constructor for default compress option
-                        .setHideSeekBar(true)
-                        .start(this, startForResult);
             }
         });
 
@@ -665,6 +665,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 //            ((MainActivity) mActivity).showHideTableLayout(true);
 //        }
 
+        mViewHolder.llPhoto.removeAllViews();
+
         if (count > 0) {
             mViewHolder.hsvPhoto.setVisibility(View.VISIBLE);
             mViewHolder.llPhoto.removeAllViews();
@@ -683,6 +685,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
             } catch (Exception e) {
                 Log.d("A.lee", "error" + e.toString());
             }
+        } else {
+            mViewHolder.hsvPhoto.setVisibility(View.GONE);
         }
     }
 
