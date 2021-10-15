@@ -144,14 +144,12 @@ public class SelectedItemCollection {
         // 如果两种都选择了，mCollectionType设置为COLLECTION_MIXED
         if (added) {
             // 如果是空的数据源
-            if (mCollectionType == COLLECTION_UNDEFINED) {
-                if (item.isImage()) {
-                    // 如果是图片，就设置图片类型
-                    mCollectionType = COLLECTION_IMAGE;
-                } else if (item.isVideo()) {
-                    // 如果是视频，就设置视频类型
-                    mCollectionType = COLLECTION_VIDEO;
-                }
+            if (item.isImage()) {
+                // 如果是图片，就设置图片类型
+                mCollectionType = COLLECTION_IMAGE;
+            } else if (item.isVideo()) {
+                // 如果是视频，就设置视频类型
+                mCollectionType = COLLECTION_VIDEO;
             }
         }
         return added;
@@ -412,7 +410,7 @@ public class SelectedItemCollection {
      * Determine whether there will be conflict media types. A user can only select images and videos at the same time
      * while {@link AlbumSpec#mediaTypeExclusive} is set to false.
      */
-    private boolean typeConflict(MultiMedia item) {
+    public boolean typeConflict(MultiMedia item) {
         if (item.isImage()) {
             return mCollectionType == COLLECTION_VIDEO;
         } else if (item.isVideo()) {

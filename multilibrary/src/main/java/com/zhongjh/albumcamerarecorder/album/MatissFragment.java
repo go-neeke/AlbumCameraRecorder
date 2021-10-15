@@ -75,6 +75,7 @@ import gaode.zhongjh.com.common.widget.IncapableDialog;
 
 import static android.app.Activity.RESULT_OK;
 import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection.COLLECTION_IMAGE;
+import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection.COLLECTION_VIDEO;
 import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection.STATE_COLLECTION_TYPE;
 import static com.zhongjh.albumcamerarecorder.album.model.SelectedItemCollection.STATE_SELECTION;
 import static com.zhongjh.albumcamerarecorder.camera.common.Constants.BUTTON_STATE_BOTH;
@@ -291,7 +292,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
                 if (mGlobalSpec.isCutscenes) {
                     mActivity.overridePendingTransition(R.anim.activity_open, 0);
                 }
-            } else {
+            } else if (mSelectedCollection.getCollectionType() == COLLECTION_VIDEO) {
                 TrimVideo.activity(String.valueOf(mSelectedCollection.asListOfUri().get(0)))
                         .setCompressOption(new CompressOption()) //empty constructor for default compress option
                         .setHideSeekBar(true)
@@ -618,9 +619,11 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
     @Override
     public void onMediaClick(Album album, MultiMedia item, int adapterPosition) {
         if (item.isVideo()) {
+            Log.d("A.lee", "mSelectedCollection.getCollectionType()" + mSelectedCollection.getCollectionType());
             TrimVideo.activity(String.valueOf(item.getMediaUri()))
                     .setCompressOption(new CompressOption()) //empty constructor for default compress option
                     .setHideSeekBar(true)
+                    .setEnableEdit(!mSelectedCollection.typeConflict(item))
                     .start(this, startForResult);
         } else {
             Intent intent = new Intent(mActivity, AlbumPreviewActivity.class);
