@@ -284,9 +284,11 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         // 预览事件
         mViewHolder.buttonPreview.setOnClickListener(view -> {
             if (mSelectedCollection.getCollectionType() == COLLECTION_VIDEO) {
-                TrimVideo.activity(String.valueOf(mSelectedCollection.asListOfUri().get(0)))
+                MultiMedia item = mSelectedCollection.asList().get(0);
+                TrimVideo.activity(String.valueOf(item.getMediaUri()))
                         .setCompressOption(new CompressOption()) //empty constructor for default compress option
                         .setHideSeekBar(true)
+                        .setEnableEdit(!mSelectedCollection.typeConflict(item))
                         .start(this, startForResult);
             } else {
                 Intent intent = new Intent(mActivity, SelectedPreviewActivity.class);
