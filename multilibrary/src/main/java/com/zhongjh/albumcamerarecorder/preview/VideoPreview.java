@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import gaode.zhongjh.com.common.enums.MultimediaTypes;
 
 public class VideoPreview {
-    public static void previewVideo(AppCompatActivity context, ActivityResultRegistry registry, String url) {
+    public static void previewVideo(AppCompatActivity context, String url) {
         ActivityResultLauncher<Intent> startActivityResult = context.registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -39,7 +39,7 @@ public class VideoPreview {
                     }
                 });
 
-        TrimVideo.activity(String.valueOf(url))
+        TrimVideo.activity(url)
                 .setCompressOption(new CompressOption()) //empty constructor for default compress option
                 .setHideSeekBar(true)
                 .setEnableEdit(false)
