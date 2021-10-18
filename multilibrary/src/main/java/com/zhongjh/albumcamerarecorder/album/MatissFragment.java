@@ -177,6 +177,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         Bundle args = new Bundle();
         matissFragment.setArguments(args);
         args.putInt(ARGUMENTS_MARGIN_BOTTOM, marginBottom);
+        
         return matissFragment;
     }
 
