@@ -189,7 +189,7 @@ public class MainUpperLimitActivity extends BaseActivity {
                     Toast.makeText(MainUpperLimitActivity.this.getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
                 })
                 // 设置路径和7.0保护路径等等
-                .allStrategy(new SaveStrategy(true, "com.zhongjh.cameraapp.fileprovider", "aabb"))
+                .allStrategy(new SaveStrategy(true, "com.zhongjh.cameraapp.fileprovider", "zaihan"))
                 // for glide-V4
                 .imageEngine(new Glide4Engine())
                 .maxSelectablePerMediaType(limitModel.getMaxSelectable(),
