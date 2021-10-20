@@ -157,6 +157,7 @@ public class CameraFragment extends BaseFragment {
 
     public void goVideoTrim(Uri path) {
         TrimVideo.activity(String.valueOf(path))
+                .setEnableEdit(true)
                 .setCompressOption(new CompressOption()) //empty constructor for default compress option
                 .start(mActivity, startForResult);
     }

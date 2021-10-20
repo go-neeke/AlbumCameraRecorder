@@ -50,5 +50,6 @@ dependencies {
     compileOnly project(':videoedit')
 
     implementation 'com.github.go-neeke:android-video-trimmer:1.8.9'
+    implementation 'top.zibin:Luban:1.1.8'
 
 }

@@ -1,4 +1,5 @@
 package com.zhongjh.albumcamerarecorder.settings;
+
 import androidx.annotation.StyleRes;
 
 import com.zhongjh.albumcamerarecorder.R;
@@ -8,6 +9,7 @@ import com.zhongjh.albumcamerarecorder.album.engine.impl.GlideEngine;
 import gaode.zhongjh.com.common.entity.SaveStrategy;
 import gaode.zhongjh.com.common.enums.MimeType;
 
+import com.zhongjh.albumcamerarecorder.configuration.CompressionLuBan;
 import com.zhongjh.albumcamerarecorder.listener.CompressionInterface;
 import com.zhongjh.albumcamerarecorder.listener.OnMainListener;
 import com.zhongjh.albumcamerarecorder.constants.ModuleTypes;
@@ -140,7 +142,7 @@ public class GlobalSpec {
         imageEngine = new GlideEngine();
         isCutscenes = true;
         isImageEdit = true;
-        compressionInterface = null;
+        compressionInterface = new CompressionLuBan();
         requestCode = 0;
     }
 
