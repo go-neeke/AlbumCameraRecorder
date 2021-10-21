@@ -3,6 +3,7 @@ package com.zhongjh.albumcamerarecorder.album;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -94,7 +95,7 @@ import static com.zhongjh.albumcamerarecorder.constants.Constant.REQUEST_CODE_PR
  */
 public class MatissFragment extends Fragment implements AlbumCollection.AlbumCallbacks,
         MediaSelectionFragment.SelectionProvider,
-        AlbumMediaAdapter.CheckStateListener, AlbumMediaAdapter.OnMediaClickListener {
+        AlbumMediaAdapter.CheckStateListener, AlbumMediaAdapter.OnMediaClickListener, TrimVideo.CompressBuilderListener {
 
     private static final String EXTRA_RESULT_ORIGINAL_ENABLE = "extra_result_original_enable";
     public static final String ARGUMENTS_MARGIN_BOTTOM = "arguments_margin_bottom";
@@ -139,6 +140,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
     private boolean mIsRefresh;
 
     private ViewHolder mViewHolder;
+
+    private Dialog dialog;
 
     public LinkedHashMap<Integer, BitmapData> mCaptureBitmaps = new LinkedHashMap<>();
 
@@ -304,18 +307,32 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 
         // 确认当前选择的图片
         mViewHolder.buttonApply.setOnClickListener(view -> {
-            Intent result = new Intent();
-            // 获取选择的图片的url集合
+//            // 获取选择的图片的url集合
             ArrayList<Uri> selectedUris = (ArrayList<Uri>) mSelectedCollection.asListOfUri();
-            result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
             ArrayList<String> selectedPaths = (ArrayList<String>) mSelectedCollection.asListOfString();
-            result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, selectedPaths);
-            result.putExtra(EXTRA_MULTIMEDIA_TYPES, getMultimediaType(selectedUris));
-            result.putExtra(EXTRA_MULTIMEDIA_CHOICE, true);
-            // 是否启用原图
-            result.putExtra(EXTRA_RESULT_ORIGINAL_ENABLE, mOriginalEnable);
-            mActivity.setResult(RESULT_OK, result);
-            mActivity.finish();
+
+            if (getMultimediaType(selectedUris) == MultimediaTypes.VIDEO) {
+
+                showProcessingDialog();
+
+                TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(selectedUris.get(0)), this).setCompressOption(new CompressOption());
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        compressBuilder.trimVideo();
+                    }
+                }, 500);
+            } else {
+                Intent result = new Intent();
+                result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
+                result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, selectedPaths);
+                result.putExtra(EXTRA_MULTIMEDIA_TYPES, getMultimediaType(selectedUris));
+                result.putExtra(EXTRA_MULTIMEDIA_CHOICE, true);
+                // 是否启用原图
+                result.putExtra(EXTRA_RESULT_ORIGINAL_ENABLE, mOriginalEnable);
+                mActivity.setResult(RESULT_OK, result);
+                mActivity.finish();
+            }
         });
 
         // 点击原图
@@ -698,6 +715,54 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         mFragmentLast.refreshSelection();
         mFragmentLast.refreshMediaGrid();
         updateBottomToolbar();
+    }
+
+    private void showProcessingDialog() {
+        try {
+            dialog = new Dialog(mActivity);
+            dialog.setCancelable(false);
+            dialog.setContentView(com.gowtham.library.R.layout.alert_convert);
+            TextView txtCancel = dialog.findViewById(com.gowtham.library.R.id.txt_cancel);
+            dialog.setCancelable(false);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            txtCancel.setOnClickListener(v -> {
+                dialog.dismiss();
+            });
+            dialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onProcessing() {
+
+    }
+
+    @Override
+    public void onSuccess(String outputPath) {
+        Log.d("A.lee", "compress success" + outputPath);
+        dialog.dismiss();
+
+        File newFile = new File(outputPath);
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add(outputPath);
+        ArrayList<Uri> arrayListUri = new ArrayList<>();
+        arrayListUri.add(Uri.fromFile(newFile));
+        // 获取视频路径
+        Intent result = new Intent();
+        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
+        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
+        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
+        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
+        mActivity.setResult(RESULT_OK, result);
+        mActivity.finish();
+    }
+
+    @Override
+    public void onFailed() {
+        if (dialog.isShowing())
+            dialog.dismiss();
     }
 
     public static class ViewHolder {

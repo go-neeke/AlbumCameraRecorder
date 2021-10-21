@@ -176,7 +176,7 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
             public void run() {
                 compressBuilder.trimVideo();
             }
-        }, 1000);
+        }, 500);
 
 
 //        ArrayList<String> arrayList = new ArrayList<>();
