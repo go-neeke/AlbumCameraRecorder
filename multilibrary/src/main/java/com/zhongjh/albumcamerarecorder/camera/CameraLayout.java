@@ -639,11 +639,13 @@ public class CameraLayout extends RelativeLayout {
             @Override
             public void confirm() {
                 if (mState == STATE_VIDEO) {
-                    File newSectionVideo = mVideoMediaStoreCompat.createFile(1, false);
+                    File newSectionVideo = mVideoMediaStoreCompat.createFile(1, true);
                     mNewSectionVideoPath = newSectionVideo.getPath();
                     mCameraSpec.videoEditCoordinator.merge(mNewSectionVideoPath, mVideoPaths,
                             mContext.getCacheDir().getPath() + File.separator + "cam.txt");
-                    fragment.confirmVideo(newSectionVideo);
+//                    fragment.confirmVideo(newSectionVideo);
+
+                    fragment.confirmVideo(Uri.fromFile(newSectionVideo));
                 } else {
                     ArrayList<BitmapData> bitmapDatas = new ArrayList<BitmapData>();
                     for (Map.Entry<Integer, BitmapData> entry : mCaptureBitmaps.entrySet()) {

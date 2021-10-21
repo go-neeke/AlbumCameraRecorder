@@ -1,14 +1,17 @@
 package com.zhongjh.albumcamerarecorder.camera;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -67,7 +70,7 @@ import static com.zhongjh.albumcamerarecorder.constants.Constant.REQUEST_CODE_PR
  * @author zhongjh
  * @date 2018/8/22
  */
-public class CameraFragment extends BaseFragment {
+public class CameraFragment extends BaseFragment implements TrimVideo.CompressBuilderListener {
 
     private Activity mActivity;
 
@@ -83,6 +86,7 @@ public class CameraFragment extends BaseFragment {
      */
     private boolean mIsCommit = false;
 
+    private Dialog dialog;
 
     private final ActivityResultLauncher<Intent> startForResult =
             registerForActivityResult(
@@ -163,19 +167,28 @@ public class CameraFragment extends BaseFragment {
                 .start(mActivity, startForResult);
     }
 
-    public void confirmVideo(File newFile) {
-        ArrayList<String> arrayList = new ArrayList<>();
-        arrayList.add(newFile.getPath());
-        ArrayList<Uri> arrayListUri = new ArrayList<>();
-        arrayListUri.add(Uri.fromFile(newFile));
-        // 获取视频路径
-        Intent result = new Intent();
-        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
-        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
-        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
-        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
-        mActivity.setResult(RESULT_OK, result);
-        mActivity.finish();
+    public void confirmVideo(Uri path) {
+        TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(path), this).setCompressOption(new CompressOption());
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                compressBuilder.trimVideo();
+            }
+        }, 1000);
+
+
+//        ArrayList<String> arrayList = new ArrayList<>();
+//        arrayList.add(newFile.getPath());
+//        ArrayList<Uri> arrayListUri = new ArrayList<>();
+//        arrayListUri.add(Uri.fromFile(newFile));
+//        // 获取视频路径
+//        Intent result = new Intent();
+//        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
+//        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
+//        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
+//        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
+//        mActivity.setResult(RESULT_OK, result);
+//        mActivity.finish();
     }
 
     public void confirmPicture(ArrayList<BitmapData> bitmapDatas) {
@@ -424,6 +437,64 @@ public class CameraFragment extends BaseFragment {
             intent.putExtra(ImageEditActivity.EXTRA_IMAGE_SAVE_PATH, newPath);
             this.startActivityForResult(intent, REQ_IMAGE_EDIT);
         });
+    }
+
+    @Override
+    public void onSuccess(String outputPath) {
+        Log.d("A.lee", "compress success" + outputPath);
+        dialog.dismiss();
+
+        File newFile = new File(outputPath);
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add(outputPath);
+        ArrayList<Uri> arrayListUri = new ArrayList<>();
+        arrayListUri.add(Uri.fromFile(newFile));
+        // 获取视频路径
+        Intent result = new Intent();
+        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
+        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
+        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
+        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
+        mActivity.setResult(RESULT_OK, result);
+        mActivity.finish();
+
+
+//        if (showFileLocationAlert)
+//            showLocationAlert();
+//        else {
+//            Intent intent = new Intent();
+//            intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+//            setResult(RESULT_OK, intent);
+//            finish();
+//        }
+    }
+
+    @Override
+    public void onFailed() {
+        if (dialog.isShowing())
+            dialog.dismiss();
+    }
+
+    @Override
+    public void onProcessing() {
+        showProcessingDialog();
+    }
+
+    private void showProcessingDialog() {
+        try {
+            dialog = new Dialog(mActivity);
+            dialog.setCancelable(false);
+            dialog.setContentView(com.gowtham.library.R.layout.alert_convert);
+            TextView txtCancel = dialog.findViewById(com.gowtham.library.R.id.txt_cancel);
+            dialog.setCancelable(false);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            txtCancel.setOnClickListener(v -> {
+                dialog.dismiss();
+            });
+            dialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
