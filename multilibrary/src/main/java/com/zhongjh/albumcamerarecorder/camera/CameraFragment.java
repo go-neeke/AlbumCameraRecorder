@@ -170,6 +170,8 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
     public void confirmVideo(Uri path) {
         showProcessingDialog();
 
+
+        
         TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(path), this).setCompressOption(new CompressOption());
         new Handler().postDelayed(new Runnable() {
             @Override
