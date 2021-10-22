@@ -107,6 +107,7 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
                             resultIntent.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
                             resultIntent.putExtra(EXTRA_MULTIMEDIA_CHOICE, true);
                             mActivity.setResult(RESULT_OK, resultIntent);
+                            mIsCommit = true;
                             mActivity.finish();
                         } else {
 
@@ -210,6 +211,7 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
         result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.PICTURE);
         result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
         mActivity.setResult(RESULT_OK, result);
+        mIsCommit = true;
         mActivity.finish();
     }
 
@@ -460,6 +462,7 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
         result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
         result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
         mActivity.setResult(RESULT_OK, result);
+        mIsCommit = true;
         mActivity.finish();
 
 
