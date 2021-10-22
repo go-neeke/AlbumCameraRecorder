@@ -647,16 +647,12 @@ public class CameraLayout extends RelativeLayout {
 
                     fragment.confirmVideo(Uri.fromFile(newSectionVideo));
                 } else {
-                    if (mOperateCameraListener != null) {
-                        // 移动文件
-                        movePictureFile();
+                    ArrayList<BitmapData> bitmapDatas = new ArrayList<BitmapData>();
+                    for (Map.Entry<Integer, BitmapData> entry : mCaptureBitmaps.entrySet()) {
+                        bitmapDatas.add(mCaptureBitmaps.get(entry.getKey()));
                     }
-//                    ArrayList<BitmapData> bitmapDatas = new ArrayList<BitmapData>();
-//                    for (Map.Entry<Integer, BitmapData> entry : mCaptureBitmaps.entrySet()) {
-//                        bitmapDatas.add(mCaptureBitmaps.get(entry.getKey()));
-//                    }
-//
-//                    fragment.confirmPicture(bitmapDatas);
+
+                    fragment.confirmPicture(bitmapDatas);
                 }
             }
 
@@ -942,7 +938,7 @@ public class CameraLayout extends RelativeLayout {
         mViewHolder.imgFlash.setVisibility(mCameraSpec.useImgFlash ? VISIBLE : INVISIBLE);
     }
 
-    //    private void confirmState(int type) {
+//    private void confirmState(int type) {
 //        switch (type) {
 //            case TYPE_VIDEO:
 //                // TODO 弃用，已经改用跳转到第二个界面播放视频了
@@ -964,71 +960,66 @@ public class CameraLayout extends RelativeLayout {
 //    /**
 //     * 迁移图片文件，缓存文件迁移到配置目录
 //     */
-    private void movePictureFile() {
-        ThreadUtils.executeByIo(new ThreadUtils.BaseSimpleBaseTask<Void>() {
-            @Override
-            public Void doInBackground() {
-                ArrayList<String> paths = getPaths();
-                ArrayList<String> newPaths = new ArrayList<>();
-                // 总长度
-                int maxCount = paths.size();
-                // 计算每个文件的进度Progress
-                int progress = 100 / maxCount;
-                // 将 缓存文件 拷贝到 配置目录
-                for (String item : paths) {
-                    File oldFile = new File(item);
-                    // 压缩图片
-                    File compressionFile = null;
-                    if (mGlobalSpec.compressionInterface != null) {
-                        try {
-                            compressionFile = mGlobalSpec.compressionInterface.compressionFile(mContext, oldFile);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        compressionFile = oldFile;
-                    }
-                    // 获取文件名称
-                    String newFileName = item.substring(item.lastIndexOf(File.separator));
-                    File newFile = mPictureMediaStoreCompat.createFile(newFileName, 0, false);
-                    Log.d(TAG, "newFile" + newFile.getAbsolutePath());
-                    FileUtil.copy(compressionFile, newFile, null, (ioProgress, file) -> {
-                        if (ioProgress >= 1) {
-                            newPaths.add(file.getAbsolutePath());
-                            Log.d(TAG, file.getAbsolutePath());
-                            ThreadUtils.runOnUiThread(() -> {
-                                // 是否拷贝完所有文件
-                                currentCount++;
-                                if (currentCount >= maxCount) {
-                                    currentCount = 0;
-                                    // 拷贝完毕，进行加入相册库等操作
-                                    ArrayList<Uri> uris = getUris(newPaths);
-                                    // 加入图片到android系统库里面
-                                    for (String path : newPaths) {
-                                        BitmapUtils.displayToGallery(getContext(), new File(path), TYPE_PICTURE, -1, mPictureMediaStoreCompat.getSaveStrategy().directory, mPictureMediaStoreCompat);
-                                    }
-                                    // 执行完成
-                                    mOperateCameraListener.captureSuccess(newPaths, uris);
-                                }
-                            });
-                        }
-                    });
-                }
-                return null;
-            }
-
-            @Override
-            public void onSuccess(Void result) {
-
-            }
-
-            @Override
-            public void onFail(Throwable t) {
-                super.onFail(t);
-                ThreadUtils.runOnUiThread(() -> Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show());
-            }
-        });
-    }
+//    private void movePictureFile() {
+////        //  开始迁移文件
+////        ThreadUtils.executeByIo(new ThreadUtils.BaseSimpleBaseTask<Void>() {
+////            @Override
+////            public Void doInBackground() {
+////                ArrayList<String> paths = getPaths();
+////                ArrayList<String> newPaths = new ArrayList<>();
+////                // 总长度
+////                int maxCount = paths.size();
+////                // 计算每个文件的进度Progress
+////                int progress = 100 / maxCount;
+////                // 将 缓存文件 拷贝到 配置目录
+////                for (String item : paths) {
+////                    String newFileName = item.substring(item.lastIndexOf(File.separator));
+////                    File newFile = mPictureMediaStoreCompat.createFile(newFileName, 0, false);
+////                    Log.d(TAG, "newFile" + newFile.getAbsolutePath());
+////                    newPaths.add(newFile.getAbsolutePath());
+////                    ThreadUtils.runOnUiThread(() -> {
+////                        // 是否拷贝完所有文件
+////                        currentCount++;
+////                        if (currentCount >= maxCount) {
+////                            currentCount = 0;
+////                            // 拷贝完毕，进行加入相册库等操作
+////                            ArrayList<Uri> uris = getUris(newPaths);
+////                            // 加入图片到android系统库里面
+////                            for (String path : newPaths) {
+////                                BitmapUtils.displayToGallery(getContext(), new File(path), TYPE_PICTURE, -1, mPictureMediaStoreCompat.getSaveStrategy().directory, mPictureMediaStoreCompat);
+////                            }
+////                            // 执行完成
+////                            mOperateCameraListener.captureSuccess(newPaths, uris);
+////                        }
+////                    });
+////                }
+////                return null;
+////            }
+////
+////            @Override
+////            public void onSuccess(Void result) {
+////
+////            }
+////
+////            @Override
+////            public void onFail(Throwable t) {
+////                super.onFail(t);
+////                ThreadUtils.runOnUiThread(() -> Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show());
+////            }
+////        });
+//        ArrayList<String> arrayList = new ArrayList<>();
+//        arrayList.add(newFile.getPath());
+//        ArrayList<Uri> arrayListUri = new ArrayList<>();
+//        arrayListUri.add(Uri.fromFile(newFile));
+//        // 获取视频路径
+//        Intent result = new Intent();
+//        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
+//        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
+//        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
+//        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
+//        mActivity.setResult(RESULT_OK, result);
+//        mActivity.finish();
+//    }
 
     /**
      * 显示图片 单个或者多个
