@@ -162,7 +162,7 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
     public void goVideoTrim(Uri path) {
         TrimVideo.activity(String.valueOf(path))
                 .setEnableEdit(true)
-                .setCompressOption(new CompressOption()) //empty constructor for default compress option
+                .setCompressOption(new CompressOption("30M")) //empty constructor for default compress option
 //                .setCompressOption(new CompressOption(30,"1M",460,320))
                 .start(mActivity, startForResult);
     }
@@ -171,8 +171,8 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
         showProcessingDialog();
 
 
-        
-        TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(path), this).setCompressOption(new CompressOption());
+
+        TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(path), this).setCompressOption(new CompressOption("30M"));
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
