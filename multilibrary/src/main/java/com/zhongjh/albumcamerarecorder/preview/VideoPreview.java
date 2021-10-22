@@ -40,7 +40,7 @@ public class VideoPreview {
                 });
 
         TrimVideo.activity(url)
-                .setCompressOption(new CompressOption("30M")) //empty constructor for default compress option
+                .setCompressOption(new CompressOption()) //empty constructor for default compress option
                 .setHideSeekBar(true)
                 .setEnableEdit(false)
                 .start(context, startActivityResult);

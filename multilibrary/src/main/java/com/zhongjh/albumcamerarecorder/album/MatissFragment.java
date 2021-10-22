@@ -289,7 +289,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
             if (mSelectedCollection.getCollectionType() == COLLECTION_VIDEO) {
                 MultiMedia item = mSelectedCollection.asList().get(0);
                 TrimVideo.activity(String.valueOf(item.getMediaUri()))
-                        .setCompressOption(new CompressOption("30M")) //empty constructor for default compress option
+                        .setCompressOption(new CompressOption()) //empty constructor for default compress option
                         .setHideSeekBar(true)
                         .setEnableEdit(!mSelectedCollection.typeConflict(item))
                         .start(this, startForResult);
@@ -315,13 +315,13 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 
                 showProcessingDialog();
 
-                TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(selectedUris.get(0)), this).setCompressOption(new CompressOption("30M"));
+                TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(selectedUris.get(0)), this).setCompressOption(new CompressOption());
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         compressBuilder.trimVideo();
                     }
-                }, 500);
+                }, 800);
             } else {
                 Intent result = new Intent();
                 result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
@@ -640,7 +640,7 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
         if (item.isVideo()) {
             Log.d("A.lee", "mSelectedCollection.getCollectionType()" + mSelectedCollection.getCollectionType());
             TrimVideo.activity(String.valueOf(item.getMediaUri()))
-                    .setCompressOption(new CompressOption("30M")) //empty constructor for default compress option
+                    .setCompressOption(new CompressOption()) //empty constructor for default compress option
                     .setHideSeekBar(true)
                     .setEnableEdit(!mSelectedCollection.typeConflict(item))
                     .start(this, startForResult);
