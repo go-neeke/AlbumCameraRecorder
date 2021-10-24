@@ -112,9 +112,9 @@ public class MainSuperSimpleActivity extends AppCompatActivity {
         mGlobalSetting = MultiMediaSetting.from(MainSuperSimpleActivity.this).choose(MimeType.ofAll());
 
         // 开启相册功能
-//        mGlobalSetting.albumSetting(albumSetting);
+        mGlobalSetting.albumSetting(albumSetting);
         // 开启拍摄功能
-        mGlobalSetting.cameraSetting(cameraSetting);
+//        mGlobalSetting.cameraSetting(cameraSetting);
         // 开启录音功能
 //        mGlobalSetting.recorderSetting(recorderSetting);
 

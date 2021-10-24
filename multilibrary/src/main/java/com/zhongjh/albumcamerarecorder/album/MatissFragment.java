@@ -312,16 +312,12 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
             ArrayList<String> selectedPaths = (ArrayList<String>) mSelectedCollection.asListOfString();
 
             if (getMultimediaType(selectedUris) == MultimediaTypes.VIDEO) {
-
-                showProcessingDialog();
-
-                TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(selectedUris.get(0)), this).setCompressOption(new CompressOption());
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        compressBuilder.trimVideo();
-                    }
-                }, 800);
+                TrimVideo.activity(String.valueOf(selectedUris.get(0)))
+                        .setEnableEdit(false)
+                        .setExecute(true)
+                        .setCompressOption(new CompressOption()) //empty constructor for default compress option
+//                .setCompressOption(new CompressOption(30,"1M",460,320))
+                        .start(mActivity, startForResult);
             } else {
                 Intent result = new Intent();
                 result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, selectedUris);
@@ -722,12 +718,8 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
             dialog = new Dialog(mActivity);
             dialog.setCancelable(false);
             dialog.setContentView(com.gowtham.library.R.layout.alert_convert);
-            TextView txtCancel = dialog.findViewById(com.gowtham.library.R.id.txt_cancel);
             dialog.setCancelable(false);
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            txtCancel.setOnClickListener(v -> {
-                dialog.dismiss();
-            });
             dialog.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -741,22 +733,27 @@ public class MatissFragment extends Fragment implements AlbumCollection.AlbumCal
 
     @Override
     public void onSuccess(String outputPath) {
-        Log.d("A.lee", "compress success" + outputPath);
-        dialog.dismiss();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("A.lee", "compress success" + outputPath);
+                dialog.dismiss();
 
-        File newFile = new File(outputPath);
-        ArrayList<String> arrayList = new ArrayList<>();
-        arrayList.add(outputPath);
-        ArrayList<Uri> arrayListUri = new ArrayList<>();
-        arrayListUri.add(Uri.fromFile(newFile));
-        // 获取视频路径
-        Intent result = new Intent();
-        result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
-        result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
-        result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
-        result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
-        mActivity.setResult(RESULT_OK, result);
-        mActivity.finish();
+                File newFile = new File(outputPath);
+                ArrayList<String> arrayList = new ArrayList<>();
+                arrayList.add(outputPath);
+                ArrayList<Uri> arrayListUri = new ArrayList<>();
+                arrayListUri.add(Uri.fromFile(newFile));
+                // 获取视频路径
+                Intent result = new Intent();
+                result.putStringArrayListExtra(EXTRA_RESULT_SELECTION_PATH, arrayList);
+                result.putParcelableArrayListExtra(EXTRA_RESULT_SELECTION, arrayListUri);
+                result.putExtra(EXTRA_MULTIMEDIA_TYPES, MultimediaTypes.VIDEO);
+                result.putExtra(EXTRA_MULTIMEDIA_CHOICE, false);
+                mActivity.setResult(RESULT_OK, result);
+                mActivity.finish();
+            }
+        }, 1000);
     }
 
     @Override

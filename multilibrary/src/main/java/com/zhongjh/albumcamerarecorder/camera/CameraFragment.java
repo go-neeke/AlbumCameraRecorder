@@ -169,17 +169,22 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
     }
 
     public void confirmVideo(Uri path) {
-        showProcessingDialog();
+        TrimVideo.activity(String.valueOf(path))
+                .setEnableEdit(false)
+                .setExecute(true)
+                .setCompressOption(new CompressOption()) //empty constructor for default compress option
+//                .setCompressOption(new CompressOption(30,"1M",460,320))
+                .start(mActivity, startForResult);
+//        showProcessingDialog();
 
 
-
-        TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(path), this).setCompressOption(new CompressOption());
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                compressBuilder.trimVideo();
-            }
-        }, 800);
+//        TrimVideo.CompressBuilder compressBuilder = TrimVideo.compress(mActivity, String.valueOf(path), this).setCompressOption(new CompressOption());
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                compressBuilder.trimVideo();
+//            }
+//        }, 1000);
 
 
 //        ArrayList<String> arrayList = new ArrayList<>();
@@ -448,7 +453,7 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
     @Override
     public void onSuccess(String outputPath) {
         Log.d("A.lee", "compress success" + outputPath);
-        dialog.dismiss();
+//        dialog.dismiss();
 
         File newFile = new File(outputPath);
         ArrayList<String> arrayList = new ArrayList<>();
@@ -478,8 +483,8 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
 
     @Override
     public void onFailed() {
-        if (dialog.isShowing())
-            dialog.dismiss();
+//        if (dialog.isShowing())
+//            dialog.dismiss();
     }
 
     @Override
@@ -491,12 +496,8 @@ public class CameraFragment extends BaseFragment implements TrimVideo.CompressBu
             dialog = new Dialog(mActivity);
             dialog.setCancelable(false);
             dialog.setContentView(com.gowtham.library.R.layout.alert_convert);
-            TextView txtCancel = dialog.findViewById(com.gowtham.library.R.id.txt_cancel);
             dialog.setCancelable(false);
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            txtCancel.setOnClickListener(v -> {
-                dialog.dismiss();
-            });
             dialog.show();
         } catch (Exception e) {
             e.printStackTrace();
